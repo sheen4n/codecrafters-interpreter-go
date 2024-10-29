@@ -31,16 +31,6 @@ func TestTokenize(t *testing.T) {
 			wantErr:    errors.New("open nonexistent.txt: no such file or directory"),
 		},
 		{
-			name:       "scanner not implemented",
-			command:    "tokenize",
-			filename:   "testfile.txt",
-			wantOutput: "",
-			wantErr:    errors.New("scanner not implemented"),
-			setupFile: func(filename string) error {
-				return os.WriteFile(filename, []byte("file content"), 0644)
-			},
-		},
-		{
 			name:       "empty file",
 			command:    "tokenize",
 			filename:   "emptyfile.txt",
@@ -48,6 +38,20 @@ func TestTokenize(t *testing.T) {
 			wantErr:    nil,
 			setupFile: func(filename string) error {
 				return os.WriteFile(filename, []byte(""), 0644)
+			},
+		},
+		{
+			name:     "paranthesis",
+			command:  "tokenize",
+			filename: "parens.txt",
+			wantOutput: `LEFT_PAREN ( null
+LEFT_PAREN ( null
+RIGHT_PAREN ) null
+EOF  null
+`,
+			wantErr: nil,
+			setupFile: func(filename string) error {
+				return os.WriteFile(filename, []byte("(()"), 0644)
 			},
 		},
 	}

@@ -18,12 +18,17 @@ func tokenize(command, filename string, stdout, stderr io.Writer) error {
 		return err
 	}
 
-	if len(fileContents) > 0 {
-		return fmt.Errorf("scanner not implemented")
-	} else {
-		fmt.Fprintln(stdout, "EOF  null") // Updated to use the stdout writer
-		return nil
+	for _, char := range fileContents {
+		switch char {
+		case '(':
+			fmt.Fprintln(stdout, "LEFT_PAREN ( null") // Updated to use the stdout writer
+		case ')':
+			fmt.Fprintln(stdout, "RIGHT_PAREN ) null") // Updated to use the stdout writer
+		}
 	}
+
+	fmt.Fprintln(stdout, "EOF  null") // Updated to use the stdout writer
+	return nil
 }
 
 func main() {
