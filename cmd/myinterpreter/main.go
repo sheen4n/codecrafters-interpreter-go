@@ -2,37 +2,38 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
-func main() {
-	// You can use print statements as follows for debugging, they'll be visible when running tests.
-	fmt.Fprintln(os.Stderr, "Logs from your program will appear here!")
+func tokenize(command, filename string, stdout, stderr io.Writer) error {
+	if command != "tokenize" {
+		fmt.Fprintf(stderr, "Unknown command: %s\n", command)
+		return fmt.Errorf("unknown command: %s", command)
+	}
 
+	fileContents, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error reading file: %v\n", err)
+		return err
+	}
+
+	if len(fileContents) > 0 {
+		return fmt.Errorf("scanner not implemented")
+	} else {
+		fmt.Fprintln(stdout, "EOF  null") // Updated to use the stdout writer
+		return nil
+	}
+}
+
+func main() {
 	if len(os.Args) < 3 {
 		fmt.Fprintln(os.Stderr, "Usage: ./your_program.sh tokenize <filename>")
 		os.Exit(1)
 	}
 
-	command := os.Args[1]
-
-	if command != "tokenize" {
-		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
+	err := tokenize(os.Args[1], os.Args[2], os.Stdout, os.Stderr)
+	if err != nil {
 		os.Exit(1)
 	}
-
-	// Uncomment this block to pass the first stage
-	//
-	// filename := os.Args[2]
-	// fileContents, err := os.ReadFile(filename)
-	// if err != nil {
-	// 	fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
-	// 	os.Exit(1)
-	// }
-	//
-	// if len(fileContents) > 0 {
-	// 	panic("Scanner not implemented")
-	// } else {
-	// 	fmt.Println("EOF  null") // Placeholder, remove this line when implementing the scanner
-	// }
 }
