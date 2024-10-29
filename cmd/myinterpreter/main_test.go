@@ -49,11 +49,18 @@ LEFT_PAREN ( null
 RIGHT_PAREN ) null
 LEFT_BRACE { null
 RIGHT_BRACE } null
+STAR * null
+DOT . null
+COMMA , null
+PLUS + null
+STAR * null
+MINUS - null
+SEMICOLON ; null
 EOF  null
 `,
 			wantErr: nil,
 			setupFile: func(filename string) error {
-				return os.WriteFile(filename, []byte("((){}"), 0644)
+				return os.WriteFile(filename, []byte("((){}*.,+*-;"), 0644)
 			},
 		},
 	}

@@ -6,6 +6,19 @@ import (
 	"os"
 )
 
+var TOKENS map[byte]string = map[byte]string{
+	'(': "LEFT_PAREN",
+	')': "RIGHT_PAREN",
+	'{': "LEFT_BRACE",
+	'}': "RIGHT_BRACE",
+	'.': "DOT",
+	'*': "STAR",
+	',': "COMMA",
+	'+': "PLUS",
+	'-': "MINUS",
+	';': "SEMICOLON",
+}
+
 func tokenize(command, filename string, stdout, stderr io.Writer) error {
 	if command != "tokenize" {
 		fmt.Fprintf(stderr, "Unknown command: %s\n", command)
@@ -19,15 +32,8 @@ func tokenize(command, filename string, stdout, stderr io.Writer) error {
 	}
 
 	for _, char := range fileContents {
-		switch char {
-		case '(':
-			fmt.Fprintln(stdout, "LEFT_PAREN ( null")
-		case ')':
-			fmt.Fprintln(stdout, "RIGHT_PAREN ) null")
-		case '{':
-			fmt.Fprintln(stdout, "LEFT_BRACE { null")
-		case '}':
-			fmt.Fprintln(stdout, "RIGHT_BRACE } null")
+		if token, ok := TOKENS[char]; ok {
+			fmt.Fprintf(stdout, "%s %s null\n", token, string(char))
 		}
 	}
 
