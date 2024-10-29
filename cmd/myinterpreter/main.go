@@ -19,26 +19,33 @@ var TOKENS map[byte]string = map[byte]string{
 	';': "SEMICOLON",
 }
 
-func tokenize(command, filename string, stdout, stderr io.Writer) error {
+func tokenize(command, filename string, stdout, stderr io.Writer) []error {
 	if command != "tokenize" {
 		fmt.Fprintf(stderr, "Unknown command: %s\n", command)
-		return fmt.Errorf("unknown command: %s", command)
+		return []error{fmt.Errorf("unknown command: %s", command)}
 	}
 
 	fileContents, err := os.ReadFile(filename)
 	if err != nil {
 		fmt.Fprintf(stderr, "Error reading file: %v\n", err)
-		return err
+		return []error{err}
 	}
 
+	errors := []error{}
 	for _, char := range fileContents {
-		if token, ok := TOKENS[char]; ok {
+		token, ok := TOKENS[char]
+
+		if ok {
 			fmt.Fprintf(stdout, "%s %s null\n", token, string(char))
+		} else {
+			err := fmt.Errorf("[line 1] Error: Unexpected character: %s", string(char))
+			errors = append(errors, err)
 		}
+
 	}
 
 	fmt.Fprintln(stdout, "EOF  null") // Updated to use the stdout writer
-	return nil
+	return errors
 }
 
 func main() {
@@ -47,8 +54,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	err := tokenize(os.Args[1], os.Args[2], os.Stdout, os.Stderr)
-	if err != nil {
-		os.Exit(1)
+	errs := tokenize(os.Args[1], os.Args[2], os.Stdout, os.Stderr)
+	if len(errs) > 0 {
+		for _, err := range errs {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		os.Exit(65)
 	}
 }
