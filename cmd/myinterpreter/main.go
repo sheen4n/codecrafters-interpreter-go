@@ -21,9 +21,13 @@ func tokenize(command, filename string, stdout, stderr io.Writer) error {
 	for _, char := range fileContents {
 		switch char {
 		case '(':
-			fmt.Fprintln(stdout, "LEFT_PAREN ( null") // Updated to use the stdout writer
+			fmt.Fprintln(stdout, "LEFT_PAREN ( null")
 		case ')':
-			fmt.Fprintln(stdout, "RIGHT_PAREN ) null") // Updated to use the stdout writer
+			fmt.Fprintln(stdout, "RIGHT_PAREN ) null")
+		case '{':
+			fmt.Fprintln(stdout, "LEFT_BRACE { null")
+		case '}':
+			fmt.Fprintln(stdout, "RIGHT_BRACE } null")
 		}
 	}
 

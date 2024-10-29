@@ -47,11 +47,13 @@ func TestTokenize(t *testing.T) {
 			wantOutput: `LEFT_PAREN ( null
 LEFT_PAREN ( null
 RIGHT_PAREN ) null
+LEFT_BRACE { null
+RIGHT_BRACE } null
 EOF  null
 `,
 			wantErr: nil,
 			setupFile: func(filename string) error {
-				return os.WriteFile(filename, []byte("(()"), 0644)
+				return os.WriteFile(filename, []byte("((){}"), 0644)
 			},
 		},
 	}
@@ -80,7 +82,7 @@ EOF  null
 			// Check output
 			output := stdout.String()
 			if tt.wantErr == nil && tt.wantOutput != "" && output != tt.wantOutput {
-				t.Errorf("expected output %q, got %q", tt.wantOutput, output)
+				t.Errorf("expected output\n%v, got\n%v, \nexpected: \n%q\n,output: \n%q", tt.wantOutput, output, tt.wantOutput, output)
 			}
 		})
 	}
