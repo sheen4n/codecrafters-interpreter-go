@@ -21,7 +21,7 @@ func tokenize(command, filename string, stdout, stderr io.Writer) bool {
 		return false
 	}
 
-	l := lexer.New(fileContents)
+	l := lexer.New(string(fileContents))
 
 	ok := true
 	for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
