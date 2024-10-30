@@ -9,32 +9,32 @@ import (
 	"github.com/codecrafters-io/interpreter-starter-go/token"
 )
 
-func tokenize(command, filename string, stdout, stderr io.Writer) []error {
+func tokenize(command, filename string, stdout, stderr io.Writer) bool {
 	if command != "tokenize" {
-		fmt.Fprintf(stderr, "Unknown command: %s\n", command)
-		return []error{fmt.Errorf("unknown command: %s", command)}
+		fmt.Fprintf(stderr, "unknown command: %s\n", command)
+		return false
 	}
 
 	fileContents, err := os.ReadFile(filename)
 	if err != nil {
-		fmt.Fprintf(stderr, "Error reading file: %v\n", err)
-		return []error{err}
+		fmt.Fprintf(stderr, "error reading file: %v\n", err)
+		return false
 	}
 
-	errors := []error{}
 	l := lexer.New(fileContents)
 
+	ok := true
 	for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
 		if tok.Type == token.ILLEGAL {
-			err := fmt.Errorf("[line 1] Error: Unexpected character: %s", string(tok.Literal))
-			errors = append(errors, err)
+			fmt.Fprintf(stderr, "[line 1] Error: Unexpected character: %s\n", string(tok.Literal))
+			ok = false
 		} else {
 			fmt.Fprintf(stdout, "%s %s null\n", tok.Name, tok.Literal)
 		}
 	}
 
-	fmt.Fprintln(stdout, "EOF  null") // Updated to use the stdout writer
-	return errors
+	fmt.Fprintln(stdout, "EOF  null")
+	return ok
 }
 
 func main() {
@@ -43,11 +43,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	errs := tokenize(os.Args[1], os.Args[2], os.Stdout, os.Stderr)
-	if len(errs) > 0 {
-		for _, err := range errs {
-			fmt.Fprintln(os.Stderr, err)
-		}
+	ok := tokenize(os.Args[1], os.Args[2], os.Stdout, os.Stderr)
+	if !ok {
 		os.Exit(65)
 	}
+	os.Exit(0)
 }

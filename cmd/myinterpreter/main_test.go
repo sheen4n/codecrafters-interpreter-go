@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"os"
 	"testing"
 )
@@ -13,7 +12,7 @@ func TestTokenize(t *testing.T) {
 		command    string
 		filename   string
 		wantOutput string
-		wantErr    []error
+		wantErr    string
 		setupFile  func(string) error
 	}{
 		{
@@ -21,21 +20,21 @@ func TestTokenize(t *testing.T) {
 			command:    "invalid_command",
 			filename:   "test.txt",
 			wantOutput: "",
-			wantErr:    []error{errors.New("unknown command: invalid_command")},
+			wantErr:    "unknown command: invalid_command\n",
 		},
 		{
 			name:       "file not found",
 			command:    "tokenize",
 			filename:   "nonexistent.txt",
 			wantOutput: "",
-			wantErr:    []error{errors.New("open nonexistent.txt: no such file or directory")},
+			wantErr:    "error reading file: open nonexistent.txt: no such file or directory\n",
 		},
 		{
 			name:       "empty file",
 			command:    "tokenize",
 			filename:   "emptyfile.txt",
 			wantOutput: "EOF  null\n",
-			wantErr:    nil,
+			wantErr:    "",
 			setupFile: func(filename string) error {
 				return os.WriteFile(filename, []byte(""), 0644)
 			},
@@ -58,7 +57,7 @@ MINUS - null
 SEMICOLON ; null
 EOF  null
 `,
-			wantErr: nil,
+			wantErr: "",
 			setupFile: func(filename string) error {
 				return os.WriteFile(filename, []byte("((){}*.,+*-;"), 0644)
 			},
@@ -72,9 +71,9 @@ DOT . null
 LEFT_PAREN ( null
 EOF  null
 `,
-			wantErr: []error{
-				errors.New("[line 1] Error: Unexpected character: $"),
-				errors.New("[line 1] Error: Unexpected character: #")},
+			wantErr: `[line 1] Error: Unexpected character: $
+[line 1] Error: Unexpected character: #
+`,
 			setupFile: func(filename string) error {
 				return os.WriteFile(filename, []byte(",.$(#"), 0644)
 			},
@@ -92,17 +91,14 @@ EOF  null
 			}
 
 			var stdout, stderr bytes.Buffer
-			errs := tokenize(tt.command, tt.filename, &stdout, &stderr)
+			ok := tokenize(tt.command, tt.filename, &stdout, &stderr)
 
-			if len(tt.wantErr) > 0 {
-				if len(errs) != len(tt.wantErr) {
-					t.Errorf("expected %d errors, got %d", len(tt.wantErr), len(errs))
-				}
-
-				for i, err := range errs {
-					if err.Error() != tt.wantErr[i].Error() {
-						t.Errorf("expected error %v, got %v", tt.wantErr[i], err)
-					}
+			// Check error
+			errOutput := stderr.String()
+			if tt.wantErr != "" && errOutput != tt.wantErr {
+				t.Errorf("expected error output\n%v, got\n%v", tt.wantErr, errOutput)
+				if ok {
+					t.Errorf("expected error, got success")
 				}
 			}
 
