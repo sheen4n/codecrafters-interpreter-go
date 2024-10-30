@@ -13,10 +13,12 @@ const (
 	ILLEGAL = "ILLEGAL"
 
 	// Operators
-	DOT   = "."
-	STAR  = "*"
-	PLUS  = "+"
-	MINUS = "-"
+	DOT         = "."
+	STAR        = "*"
+	PLUS        = "+"
+	MINUS       = "-"
+	EQUAL       = "="
+	EQUAL_EQUAL = "=="
 
 	// Delimiters
 	LEFT_PAREN  = "("
@@ -27,6 +29,6 @@ const (
 	COMMA       = ","
 )
 
-func New(tokenType TokenType, ch byte, name string) Token {
-	return Token{Type: tokenType, Literal: string(ch), Name: name}
+func New(tokenType TokenType, ch string, name string) Token {
+	return Token{Type: tokenType, Literal: ch, Name: name}
 }

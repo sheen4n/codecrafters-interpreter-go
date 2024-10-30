@@ -44,29 +44,36 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.ch {
 	case 0:
-		tok = token.New(token.EOF, l.ch, "EOF")
+		tok = token.New(token.EOF, "\x00", "EOF")
 	case '(':
-		tok = token.New(token.LEFT_PAREN, l.ch, "LEFT_PAREN")
+		tok = token.New(token.LEFT_PAREN, string(l.ch), "LEFT_PAREN")
 	case ')':
-		tok = token.New(token.RIGHT_PAREN, l.ch, "RIGHT_PAREN")
+		tok = token.New(token.RIGHT_PAREN, string(l.ch), "RIGHT_PAREN")
 	case '{':
-		tok = token.New(token.LEFT_BRACE, l.ch, "LEFT_BRACE")
+		tok = token.New(token.LEFT_BRACE, string(l.ch), "LEFT_BRACE")
 	case '}':
-		tok = token.New(token.RIGHT_BRACE, l.ch, "RIGHT_BRACE")
+		tok = token.New(token.RIGHT_BRACE, string(l.ch), "RIGHT_BRACE")
 	case '.':
-		tok = token.New(token.DOT, l.ch, "DOT")
+		tok = token.New(token.DOT, string(l.ch), "DOT")
 	case '*':
-		tok = token.New(token.STAR, l.ch, "STAR")
+		tok = token.New(token.STAR, string(l.ch), "STAR")
 	case ',':
-		tok = token.New(token.COMMA, l.ch, "COMMA")
+		tok = token.New(token.COMMA, string(l.ch), "COMMA")
 	case '+':
-		tok = token.New(token.PLUS, l.ch, "PLUS")
+		tok = token.New(token.PLUS, string(l.ch), "PLUS")
 	case '-':
-		tok = token.New(token.MINUS, l.ch, "MINUS")
+		tok = token.New(token.MINUS, string(l.ch), "MINUS")
 	case ';':
-		tok = token.New(token.SEMICOLON, l.ch, "SEMICOLON")
+		tok = token.New(token.SEMICOLON, string(l.ch), "SEMICOLON")
+	case '=':
+		if l.peekChar() == '=' {
+			l.readChar()
+			tok = token.New(token.EQUAL_EQUAL, "==", "EQUAL_EQUAL")
+		} else {
+			tok = token.New(token.EQUAL, string(l.ch), "EQUAL")
+		}
 	default:
-		tok = token.New(token.ILLEGAL, l.ch, "ILLEGAL")
+		tok = token.New(token.ILLEGAL, string(l.ch), "ILLEGAL")
 	}
 
 	l.readChar()
