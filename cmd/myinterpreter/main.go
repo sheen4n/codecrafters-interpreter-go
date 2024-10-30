@@ -4,20 +4,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-)
 
-var TOKENS map[byte]string = map[byte]string{
-	'(': "LEFT_PAREN",
-	')': "RIGHT_PAREN",
-	'{': "LEFT_BRACE",
-	'}': "RIGHT_BRACE",
-	'.': "DOT",
-	'*': "STAR",
-	',': "COMMA",
-	'+': "PLUS",
-	'-': "MINUS",
-	';': "SEMICOLON",
-}
+	"github.com/codecrafters-io/interpreter-starter-go/lexer"
+	"github.com/codecrafters-io/interpreter-starter-go/token"
+)
 
 func tokenize(command, filename string, stdout, stderr io.Writer) []error {
 	if command != "tokenize" {
@@ -32,16 +22,15 @@ func tokenize(command, filename string, stdout, stderr io.Writer) []error {
 	}
 
 	errors := []error{}
-	for _, char := range fileContents {
-		token, ok := TOKENS[char]
+	l := lexer.New(fileContents)
 
-		if ok {
-			fmt.Fprintf(stdout, "%s %s null\n", token, string(char))
-		} else {
-			err := fmt.Errorf("[line 1] Error: Unexpected character: %s", string(char))
+	for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
+		if tok.Type == token.ILLEGAL {
+			err := fmt.Errorf("[line 1] Error: Unexpected character: %s", string(tok.Literal))
 			errors = append(errors, err)
+		} else {
+			fmt.Fprintf(stdout, "%s %s null\n", tok.Name, tok.Literal)
 		}
-
 	}
 
 	fmt.Fprintln(stdout, "EOF  null") // Updated to use the stdout writer
