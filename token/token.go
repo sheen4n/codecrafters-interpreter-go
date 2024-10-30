@@ -19,6 +19,8 @@ const (
 	MINUS       = "-"
 	EQUAL       = "="
 	EQUAL_EQUAL = "=="
+	BANG        = "!"
+	BANG_EQUAL  = "!="
 
 	// Delimiters
 	LEFT_PAREN  = "("
