@@ -13,14 +13,18 @@ const (
 	ILLEGAL = "ILLEGAL"
 
 	// Operators
-	DOT         = "."
-	STAR        = "*"
-	PLUS        = "+"
-	MINUS       = "-"
-	EQUAL       = "="
-	EQUAL_EQUAL = "=="
-	BANG        = "!"
-	BANG_EQUAL  = "!="
+	DOT           = "."
+	STAR          = "*"
+	PLUS          = "+"
+	MINUS         = "-"
+	EQUAL         = "="
+	EQUAL_EQUAL   = "=="
+	BANG          = "!"
+	BANG_EQUAL    = "!="
+	LESS          = "<"
+	GREATER       = ">"
+	LESS_EQUAL    = "<="
+	GREATER_EQUAL = ">="
 
 	// Delimiters
 	LEFT_PAREN  = "("

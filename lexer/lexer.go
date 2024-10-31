@@ -65,6 +65,20 @@ func (l *Lexer) NextToken() token.Token {
 		tok = token.New(token.MINUS, string(l.ch), "MINUS")
 	case ';':
 		tok = token.New(token.SEMICOLON, string(l.ch), "SEMICOLON")
+	case '<':
+		if l.peekChar() == '=' {
+			l.readChar()
+			tok = token.New(token.LESS_EQUAL, "<=", "LESS_EQUAL")
+		} else {
+			tok = token.New(token.LESS, string(l.ch), "LESS")
+		}
+	case '>':
+		if l.peekChar() == '=' {
+			l.readChar()
+			tok = token.New(token.GREATER_EQUAL, ">=", "GREATER_EQUAL")
+		} else {
+			tok = token.New(token.GREATER, string(l.ch), "GREATER")
+		}
 	case '!':
 		if l.peekChar() == '=' {
 			l.readChar()
