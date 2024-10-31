@@ -25,6 +25,7 @@ const (
 	GREATER       = ">"
 	LESS_EQUAL    = "<="
 	GREATER_EQUAL = ">="
+	SLASH         = "/"
 
 	// Delimiters
 	LEFT_PAREN  = "("

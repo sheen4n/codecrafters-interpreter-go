@@ -93,6 +93,8 @@ func (l *Lexer) NextToken() token.Token {
 		} else {
 			tok = token.New(token.EQUAL, string(l.ch), "EQUAL")
 		}
+	case '/':
+		tok = token.New(token.SLASH, string(l.ch), "SLASH")
 	default:
 		tok = token.New(token.ILLEGAL, string(l.ch), "ILLEGAL")
 	}
