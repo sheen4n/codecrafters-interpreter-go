@@ -94,7 +94,17 @@ func (l *Lexer) NextToken() token.Token {
 			tok = token.New(token.EQUAL, string(l.ch), "EQUAL")
 		}
 	case '/':
-		tok = token.New(token.SLASH, string(l.ch), "SLASH")
+		if l.peekChar() == '/' {
+			l.readChar()
+			for l.ch != '\n' && l.ch != 0 {
+				l.readChar()
+			}
+
+			return l.NextToken()
+		} else {
+			tok = token.New(token.SLASH, string(l.ch), "SLASH")
+		}
+
 	default:
 		tok = token.New(token.ILLEGAL, string(l.ch), "ILLEGAL")
 	}
