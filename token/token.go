@@ -43,8 +43,52 @@ const (
 	STRING     = "STRING"
 	NUMBER     = "NUMBER"
 	IDENTIFIER = "IDENTIFIER"
+
+	// Reserved Keywords
+	AND    = "AND"
+	CLASS  = "CLASS"
+	ELSE   = "ELSE"
+	FALSE  = "FALSE"
+	FOR    = "FOR"
+	FUN    = "FUN"
+	IF     = "IF"
+	NIL    = "NIL"
+	OR     = "OR"
+	PRINT  = "PRINT"
+	RETURN = "RETURN"
+	SUPER  = "SUPER"
+	THIS   = "THIS"
+	TRUE   = "TRUE"
+	VAR    = "VAR"
+	WHILE  = "WHILE"
 )
+
+var keywords = map[string]TokenType{
+	"and":    AND,
+	"class":  CLASS,
+	"else":   ELSE,
+	"false":  FALSE,
+	"for":    FOR,
+	"fun":    FUN,
+	"if":     IF,
+	"nil":    NIL,
+	"or":     OR,
+	"print":  PRINT,
+	"return": RETURN,
+	"super":  SUPER,
+	"this":   THIS,
+	"true":   TRUE,
+	"var":    VAR,
+	"while":  WHILE,
+}
 
 func New(tokenType TokenType, ch, literal string, line int) Token {
 	return Token{Type: tokenType, Lexeme: ch, Line: line, Literal: literal}
+}
+
+func LookupIdent(ident string) TokenType {
+	if tok, ok := keywords[ident]; ok {
+		return tok
+	}
+	return IDENTIFIER
 }

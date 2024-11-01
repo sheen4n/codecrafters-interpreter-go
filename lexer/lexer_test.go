@@ -137,3 +137,31 @@ func TestIdentifiers(t *testing.T) {
 
 	testLexTokens(t, input, expected)
 }
+
+func TestReservedKeywords(t *testing.T) {
+	input := `foo bar and class else false for fun if nil or print return super this true var while`
+
+	expected := []token.Token{
+		{Type: token.IDENTIFIER, Lexeme: "foo", Literal: "null", Line: 1},
+		{Type: token.IDENTIFIER, Lexeme: "bar", Literal: "null", Line: 1},
+		{Type: token.AND, Lexeme: "and", Literal: "null", Line: 1},
+		{Type: token.CLASS, Lexeme: "class", Literal: "null", Line: 1},
+		{Type: token.ELSE, Lexeme: "else", Literal: "null", Line: 1},
+		{Type: token.FALSE, Lexeme: "false", Literal: "null", Line: 1},
+		{Type: token.FOR, Lexeme: "for", Literal: "null", Line: 1},
+		{Type: token.FUN, Lexeme: "fun", Literal: "null", Line: 1},
+		{Type: token.IF, Lexeme: "if", Literal: "null", Line: 1},
+		{Type: token.NIL, Lexeme: "nil", Literal: "null", Line: 1},
+		{Type: token.OR, Lexeme: "or", Literal: "null", Line: 1},
+		{Type: token.PRINT, Lexeme: "print", Literal: "null", Line: 1},
+		{Type: token.RETURN, Lexeme: "return", Literal: "null", Line: 1},
+		{Type: token.SUPER, Lexeme: "super", Literal: "null", Line: 1},
+		{Type: token.THIS, Lexeme: "this", Literal: "null", Line: 1},
+		{Type: token.TRUE, Lexeme: "true", Literal: "null", Line: 1},
+		{Type: token.VAR, Lexeme: "var", Literal: "null", Line: 1},
+		{Type: token.WHILE, Lexeme: "while", Literal: "null", Line: 1},
+		{Type: token.EOF, Lexeme: "\x00", Literal: "null", Line: 1},
+	}
+
+	testLexTokens(t, input, expected)
+}

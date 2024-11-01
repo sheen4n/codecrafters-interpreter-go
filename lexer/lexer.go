@@ -184,7 +184,7 @@ func (l *Lexer) NextToken() token.Token {
 	default:
 		if isLetter(l.ch) {
 			lexeme := l.readIdentifier()
-			return token.New(token.IDENTIFIER, lexeme, "null", l.line)
+			return token.New(token.LookupIdent(lexeme), lexeme, "null", l.line)
 		}
 		tok = token.New(token.ILLEGAL, string(l.ch), "null", l.line)
 	}
