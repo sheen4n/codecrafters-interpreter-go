@@ -6,174 +6,107 @@ import (
 	"github.com/codecrafters-io/interpreter-starter-go/token"
 )
 
+func testLexTokens(t *testing.T, input string, expected []token.Token) {
+	l := New(input)
+
+	for i, expectedTok := range expected {
+		actualTok := l.NextToken()
+		if actualTok.Type != expectedTok.Type {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+				i, expectedTok.Type, actualTok.Type)
+		}
+		if actualTok.Lexeme != expectedTok.Lexeme {
+			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
+				i, expectedTok.Lexeme, actualTok.Lexeme)
+		}
+		if actualTok.Literal != expectedTok.Literal {
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+				i, expectedTok.Literal, actualTok.Literal)
+		}
+		if actualTok.Line != expectedTok.Line {
+			t.Fatalf("tests[%d] - line wrong. expected=%d, got=%d",
+				i, expectedTok.Line, actualTok.Line)
+		}
+	}
+}
+
 func TestNextToken(t *testing.T) {
 	input := `=+(){},;==!!=<><=>=/
 	
 	!`
 
-	tests := []struct {
-		expectedType   token.TokenType
-		expectedLexeme string
-	}{
-		{token.EQUAL, "="},
-		{token.PLUS, "+"},
-		{token.LEFT_PAREN, "("},
-		{token.RIGHT_PAREN, ")"},
-		{token.LEFT_BRACE, "{"},
-		{token.RIGHT_BRACE, "}"},
-		{token.COMMA, ","},
-		{token.SEMICOLON, ";"},
-		{token.EQUAL_EQUAL, "=="},
-		{token.BANG, "!"},
-		{token.BANG_EQUAL, "!="},
-		{token.LESS, "<"},
-		{token.GREATER, ">"},
-		{token.LESS_EQUAL, "<="},
-		{token.GREATER_EQUAL, ">="},
-		{token.SLASH, "/"},
-		{token.BANG, "!"},
-		{token.EOF, "\x00"},
+	expected := []token.Token{
+		{Type: token.EQUAL, Lexeme: "=", Literal: "null", Line: 1},
+		{Type: token.PLUS, Lexeme: "+", Literal: "null", Line: 1},
+		{Type: token.LEFT_PAREN, Lexeme: "(", Literal: "null", Line: 1},
+		{Type: token.RIGHT_PAREN, Lexeme: ")", Literal: "null", Line: 1},
+		{Type: token.LEFT_BRACE, Lexeme: "{", Literal: "null", Line: 1},
+		{Type: token.RIGHT_BRACE, Lexeme: "}", Literal: "null", Line: 1},
+		{Type: token.COMMA, Lexeme: ",", Literal: "null", Line: 1},
+		{Type: token.SEMICOLON, Lexeme: ";", Literal: "null", Line: 1},
+		{Type: token.EQUAL_EQUAL, Lexeme: "==", Literal: "null", Line: 1},
+		{Type: token.BANG, Lexeme: "!", Literal: "null", Line: 1},
+		{Type: token.BANG_EQUAL, Lexeme: "!=", Literal: "null", Line: 1},
+		{Type: token.LESS, Lexeme: "<", Literal: "null", Line: 1},
+		{Type: token.GREATER, Lexeme: ">", Literal: "null", Line: 1},
+		{Type: token.LESS_EQUAL, Lexeme: "<=", Literal: "null", Line: 1},
+		{Type: token.GREATER_EQUAL, Lexeme: ">=", Literal: "null", Line: 1},
+		{Type: token.SLASH, Lexeme: "/", Literal: "null", Line: 1},
+		{Type: token.BANG, Lexeme: "!", Literal: "null", Line: 3},
+		{Type: token.EOF, Lexeme: "\x00", Literal: "null", Line: 3},
 	}
 
-	l := New(input)
-
-	for i, tt := range tests {
-		tok := l.NextToken()
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
-				i, tt.expectedType, tok.Type)
-		}
-		if tok.Lexeme != tt.expectedLexeme {
-			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
-				i, tt.expectedLexeme, tok.Lexeme)
-		}
-	}
+	testLexTokens(t, input, expected)
 }
 
 func TestLexComments(t *testing.T) {
 	input := "=// This is a comment"
 
-	tests := []struct {
-		expectedType   token.TokenType
-		expectedLexeme string
-	}{
-		{token.EQUAL, "="},
-		{token.EOF, "\x00"},
+	expected := []token.Token{
+		{Type: token.EQUAL, Lexeme: "=", Literal: "null", Line: 1},
+		{Type: token.EOF, Lexeme: "\x00", Literal: "null", Line: 1},
 	}
 
-	l := New(input)
-
-	for i, tt := range tests {
-		tok := l.NextToken()
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
-				i, tt.expectedType, tok.Type)
-		}
-		if tok.Lexeme != tt.expectedLexeme {
-			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
-				i, tt.expectedLexeme, tok.Lexeme)
-		}
-	}
+	testLexTokens(t, input, expected)
 }
 
 func TestMultilineError(t *testing.T) {
 	input := `# (
 )	@`
 
-	tests := []struct {
-		expectedType   token.TokenType
-		expectedLexeme string
-		expectedLine   int
-	}{
-		{token.ILLEGAL, "#", 1},
-		{token.LEFT_PAREN, "(", 1},
-		{token.RIGHT_PAREN, ")", 2},
-		{token.ILLEGAL, "@", 2},
-		{token.EOF, "\x00", 2},
+	expected := []token.Token{
+		{Type: token.ILLEGAL, Lexeme: "#", Literal: "null", Line: 1},
+		{Type: token.LEFT_PAREN, Lexeme: "(", Literal: "null", Line: 1},
+		{Type: token.RIGHT_PAREN, Lexeme: ")", Literal: "null", Line: 2},
+		{Type: token.ILLEGAL, Lexeme: "@", Literal: "null", Line: 2},
+		{Type: token.EOF, Lexeme: "\x00", Literal: "null", Line: 2},
 	}
 
-	l := New(input)
-
-	for i, tt := range tests {
-		tok := l.NextToken()
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
-				i, tt.expectedType, tok.Type)
-		}
-		if tok.Lexeme != tt.expectedLexeme {
-			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
-				i, tt.expectedLexeme, tok.Lexeme)
-		}
-		if tok.Line != tt.expectedLine {
-			t.Fatalf("tests[%d] - line wrong. expected=%d, got=%d",
-				i, tt.expectedLine, tok.Line)
-		}
-	}
+	testLexTokens(t, input, expected)
 }
 
 func TestString(t *testing.T) {
 	input := `"hello world"
 "foo bar"`
 
-	tests := []struct {
-		expectedType    token.TokenType
-		expectedLexeme  string
-		expectedLiteral string
-	}{
-		{token.STRING, `"hello world"`, "hello world"},
-		{token.STRING, `"foo bar"`, "foo bar"},
-		{token.EOF, "\x00", "null"},
+	expected := []token.Token{
+		{Type: token.STRING, Lexeme: `"hello world"`, Literal: "hello world", Line: 1},
+		{Type: token.STRING, Lexeme: `"foo bar"`, Literal: "foo bar", Line: 2},
+		{Type: token.EOF, Lexeme: "\x00", Literal: "null", Line: 2},
 	}
 
-	l := New(input)
-
-	for i, tt := range tests {
-		tok := l.NextToken()
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
-				i, tt.expectedType, tok.Type)
-		}
-		if tok.Lexeme != tt.expectedLexeme {
-			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
-				i, tt.expectedLexeme, tok.Lexeme)
-		}
-		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
-				i, tt.expectedLiteral, tok.Literal)
-		}
-	}
+	testLexTokens(t, input, expected)
 }
 
 func TestUnterminatedString(t *testing.T) {
 	input := `"hello world`
 
-	tests := []struct {
-		expectedType    token.TokenType
-		expectedLexeme  string
-		expectedLiteral string
-		expectedLine    int
-	}{
-		{token.UNTERMINATED_STRING, "", "", 1},
-		{token.EOF, "\x00", "null", 1},
+	expected := []token.Token{
+		{Type: token.UNTERMINATED_STRING, Lexeme: "", Literal: "", Line: 1},
+		{Type: token.EOF, Lexeme: "\x00", Literal: "null", Line: 1},
 	}
 
-	l := New(input)
-
-	for i, tt := range tests {
-		tok := l.NextToken()
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
-				i, tt.expectedType, tok.Type)
-		}
-		if tok.Lexeme != tt.expectedLexeme {
-			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
-				i, tt.expectedLexeme, tok.Lexeme)
-		}
-		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
-				i, tt.expectedLiteral, tok.Literal)
-		}
-	}
+	testLexTokens(t, input, expected)
 }
 
 func TestNumberLiterals(t *testing.T) {
@@ -181,32 +114,13 @@ func TestNumberLiterals(t *testing.T) {
 123.456
 55.0000`
 
-	tests := []struct {
-		expectedType    token.TokenType
-		expectedLexeme  string
-		expectedLiteral string
-	}{
-		{token.NUMBER, "123", "123.0"},
-		{token.NUMBER, "123.456", "123.456"},
-		{token.NUMBER, "55.0000", "55.0"},
-		{token.EOF, "\x00", "null"},
+	expected := []token.Token{
+		{Type: token.NUMBER, Lexeme: "123", Literal: "123.0", Line: 1},
+		{Type: token.NUMBER, Lexeme: "123.456", Literal: "123.456", Line: 2},
+		{Type: token.NUMBER, Lexeme: "55.0000", Literal: "55.0", Line: 3},
+		{Type: token.EOF, Lexeme: "\x00", Literal: "null", Line: 3},
 	}
 
-	l := New(input)
-
-	for i, tt := range tests {
-		tok := l.NextToken()
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
-				i, tt.expectedType, tok.Type)
-		}
-		if tok.Lexeme != tt.expectedLexeme {
-			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
-				i, tt.expectedLexeme, tok.Lexeme)
-		}
-		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
-				i, tt.expectedLiteral, tok.Literal)
-		}
-	}
+	testLexTokens(t, input, expected)
 }
+
