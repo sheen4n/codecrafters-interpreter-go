@@ -2,6 +2,8 @@ package lexer
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/codecrafters-io/interpreter-starter-go/token"
 )
@@ -60,6 +62,33 @@ func (l *Lexer) readString() token.Token {
 	l.readChar()
 	s := l.input[startPos : l.position-1]
 	return token.New(token.STRING, fmt.Sprintf(`"%s"`, s), s, l.line)
+}
+
+func (l *Lexer) readNumber() token.Token {
+	startPos := l.position
+	for l.ch >= '0' && l.ch <= '9' {
+		l.readChar()
+	}
+
+	if l.ch == '.' && l.peekChar() >= '0' && l.peekChar() <= '9' {
+		l.readChar()
+		for l.ch >= '0' && l.ch <= '9' {
+			l.readChar()
+		}
+	}
+	lexeme := l.input[startPos:l.position]
+
+	num, err := strconv.ParseFloat(lexeme, 64)
+	if err != nil {
+		return token.New(token.ILLEGAL, "", "", l.line)
+	}
+
+	literal := strconv.FormatFloat(num, 'f', -1, 64)
+	if !strings.Contains(literal, ".") {
+		literal += ".0"
+	}
+
+	return token.New(token.NUMBER, lexeme, literal, l.line)
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -132,6 +161,9 @@ func (l *Lexer) NextToken() token.Token {
 	case '"':
 		l.readChar()
 		return l.readString()
+
+	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+		return l.readNumber()
 
 	default:
 		tok = token.New(token.ILLEGAL, string(l.ch), "null", l.line)

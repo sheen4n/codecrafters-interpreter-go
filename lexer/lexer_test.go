@@ -174,5 +174,39 @@ func TestUnterminatedString(t *testing.T) {
 				i, tt.expectedLiteral, tok.Literal)
 		}
 	}
+}
 
+func TestNumberLiterals(t *testing.T) {
+	input := `123
+123.456
+55.0000`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLexeme  string
+		expectedLiteral string
+	}{
+		{token.NUMBER, "123", "123.0"},
+		{token.NUMBER, "123.456", "123.456"},
+		{token.NUMBER, "55.0000", "55.0"},
+		{token.EOF, "\x00", "null"},
+	}
+
+	l := New(input)
+
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+				i, tt.expectedType, tok.Type)
+		}
+		if tok.Lexeme != tt.expectedLexeme {
+			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
+				i, tt.expectedLexeme, tok.Lexeme)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+				i, tt.expectedLiteral, tok.Literal)
+		}
+	}
 }

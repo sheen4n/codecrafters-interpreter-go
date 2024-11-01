@@ -41,6 +41,7 @@ const (
 
 	// Keywords
 	STRING = "STRING"
+	NUMBER = "NUMBER"
 )
 
 func New(tokenType TokenType, ch, literal string, line int) Token {
