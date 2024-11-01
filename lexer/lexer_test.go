@@ -143,3 +143,36 @@ func TestString(t *testing.T) {
 		}
 	}
 }
+
+func TestUnterminatedString(t *testing.T) {
+	input := `"hello world`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLexeme  string
+		expectedLiteral string
+		expectedLine    int
+	}{
+		{token.UNTERMINATED_STRING, "", "", 1},
+		{token.EOF, "\x00", "null", 1},
+	}
+
+	l := New(input)
+
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+				i, tt.expectedType, tok.Type)
+		}
+		if tok.Lexeme != tt.expectedLexeme {
+			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
+				i, tt.expectedLexeme, tok.Lexeme)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+				i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+
+}

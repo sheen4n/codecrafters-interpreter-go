@@ -10,8 +10,11 @@ type Token struct {
 }
 
 const (
-	EOF     = "EOF"
-	ILLEGAL = "ILLEGAL"
+	EOF = "EOF"
+
+	// Errors
+	ILLEGAL             = "ILLEGAL"
+	UNTERMINATED_STRING = "UNTERMINATED_STRING"
 
 	// Operators
 	DOT           = "DOT"

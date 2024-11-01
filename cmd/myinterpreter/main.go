@@ -25,7 +25,10 @@ func tokenize(command, filename string, stdout, stderr io.Writer) bool {
 
 	ok := true
 	for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
-		if tok.Type == token.ILLEGAL {
+		if tok.Type == token.UNTERMINATED_STRING {
+			fmt.Fprintf(stderr, "[line %d] Error: Unterminated string.\n", tok.Line)
+			ok = false
+		} else if tok.Type == token.ILLEGAL {
 			fmt.Fprintf(stderr, "[line %d] Error: Unexpected character: %s\n", tok.Line, string(tok.Lexeme))
 			ok = false
 		} else {

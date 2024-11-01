@@ -47,13 +47,19 @@ func (l *Lexer) skipWhitespace() {
 	}
 }
 
-func (l *Lexer) readString() string {
+func (l *Lexer) readString() token.Token {
 	startPos := l.position
 	for l.ch != '"' && l.ch != 0 {
 		l.readChar()
 	}
+
+	if l.ch == 0 {
+		return token.New(token.UNTERMINATED_STRING, "", "", l.line)
+	}
+
 	l.readChar()
-	return l.input[startPos : l.position-1]
+	s := l.input[startPos : l.position-1]
+	return token.New(token.STRING, fmt.Sprintf(`"%s"`, s), s, l.line)
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -125,9 +131,7 @@ func (l *Lexer) NextToken() token.Token {
 
 	case '"':
 		l.readChar()
-		s := l.readString()
-		tok = token.New(token.STRING, fmt.Sprintf(`"%s"`, s), s, l.line)
-		return tok
+		return l.readString()
 
 	default:
 		tok = token.New(token.ILLEGAL, string(l.ch), "null", l.line)
