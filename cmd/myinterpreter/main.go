@@ -29,7 +29,7 @@ func tokenize(command, filename string, stdout, stderr io.Writer) bool {
 			fmt.Fprintf(stderr, "[line %d] Error: Unexpected character: %s\n", tok.Line, string(tok.Lexeme))
 			ok = false
 		} else {
-			fmt.Fprintf(stdout, "%s %s null\n", tok.Type, tok.Lexeme)
+			fmt.Fprintf(stdout, "%s %s %s\n", tok.Type, tok.Lexeme, tok.Literal)
 		}
 	}
 

@@ -51,54 +51,54 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.ch {
 	case 0:
-		tok = token.New(token.EOF, "\x00", l.line)
+		tok = token.New(token.EOF, "\x00", "null", l.line)
 	case '(':
-		tok = token.New(token.LEFT_PAREN, string(l.ch), l.line)
+		tok = token.New(token.LEFT_PAREN, string(l.ch), "null", l.line)
 	case ')':
-		tok = token.New(token.RIGHT_PAREN, string(l.ch), l.line)
+		tok = token.New(token.RIGHT_PAREN, string(l.ch), "null", l.line)
 	case '{':
-		tok = token.New(token.LEFT_BRACE, string(l.ch), l.line)
+		tok = token.New(token.LEFT_BRACE, string(l.ch), "null", l.line)
 	case '}':
-		tok = token.New(token.RIGHT_BRACE, string(l.ch), l.line)
+		tok = token.New(token.RIGHT_BRACE, string(l.ch), "null", l.line)
 	case '.':
-		tok = token.New(token.DOT, string(l.ch), l.line)
+		tok = token.New(token.DOT, string(l.ch), "null", l.line)
 	case '*':
-		tok = token.New(token.STAR, string(l.ch), l.line)
+		tok = token.New(token.STAR, string(l.ch), "null", l.line)
 	case ',':
-		tok = token.New(token.COMMA, string(l.ch), l.line)
+		tok = token.New(token.COMMA, string(l.ch), "null", l.line)
 	case '+':
-		tok = token.New(token.PLUS, string(l.ch), l.line)
+		tok = token.New(token.PLUS, string(l.ch), "null", l.line)
 	case '-':
-		tok = token.New(token.MINUS, string(l.ch), l.line)
+		tok = token.New(token.MINUS, string(l.ch), "null", l.line)
 	case ';':
-		tok = token.New(token.SEMICOLON, string(l.ch), l.line)
+		tok = token.New(token.SEMICOLON, string(l.ch), "null", l.line)
 	case '<':
 		if l.peekChar() == '=' {
 			l.readChar()
-			tok = token.New(token.LESS_EQUAL, "<=", l.line)
+			tok = token.New(token.LESS_EQUAL, "<=", "null", l.line)
 		} else {
-			tok = token.New(token.LESS, string(l.ch), l.line)
+			tok = token.New(token.LESS, string(l.ch), "null", l.line)
 		}
 	case '>':
 		if l.peekChar() == '=' {
 			l.readChar()
-			tok = token.New(token.GREATER_EQUAL, ">=", l.line)
+			tok = token.New(token.GREATER_EQUAL, ">=", "null", l.line)
 		} else {
-			tok = token.New(token.GREATER, string(l.ch), l.line)
+			tok = token.New(token.GREATER, string(l.ch), "null", l.line)
 		}
 	case '!':
 		if l.peekChar() == '=' {
 			l.readChar()
-			tok = token.New(token.BANG_EQUAL, "!=", l.line)
+			tok = token.New(token.BANG_EQUAL, "!=", "null", l.line)
 		} else {
-			tok = token.New(token.BANG, string(l.ch), l.line)
+			tok = token.New(token.BANG, string(l.ch), "null", l.line)
 		}
 	case '=':
 		if l.peekChar() == '=' {
 			l.readChar()
-			tok = token.New(token.EQUAL_EQUAL, "==", l.line)
+			tok = token.New(token.EQUAL_EQUAL, "==", "null", l.line)
 		} else {
-			tok = token.New(token.EQUAL, string(l.ch), l.line)
+			tok = token.New(token.EQUAL, string(l.ch), "null", l.line)
 		}
 	case '/':
 		if l.peekChar() == '/' {
@@ -109,11 +109,11 @@ func (l *Lexer) NextToken() token.Token {
 
 			return l.NextToken()
 		} else {
-			tok = token.New(token.SLASH, string(l.ch), l.line)
+			tok = token.New(token.SLASH, string(l.ch), "null", l.line)
 		}
 
 	default:
-		tok = token.New(token.ILLEGAL, string(l.ch), l.line)
+		tok = token.New(token.ILLEGAL, string(l.ch), "null", l.line)
 	}
 
 	l.readChar()

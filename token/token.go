@@ -3,9 +3,10 @@ package token
 type TokenType string
 
 type Token struct {
-	Type   TokenType
-	Lexeme string
-	Line   int
+	Type    TokenType
+	Lexeme  string
+	Literal string
+	Line    int
 }
 
 const (
@@ -36,6 +37,6 @@ const (
 	COMMA       = "COMMA"
 )
 
-func New(tokenType TokenType, ch string, line int) Token {
-	return Token{Type: tokenType, Lexeme: ch, Line: line}
+func New(tokenType TokenType, ch, literal string, line int) Token {
+	return Token{Type: tokenType, Lexeme: ch, Line: line, Literal: literal}
 }
