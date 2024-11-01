@@ -26,10 +26,10 @@ func tokenize(command, filename string, stdout, stderr io.Writer) bool {
 	ok := true
 	for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
 		if tok.Type == token.ILLEGAL {
-			fmt.Fprintf(stderr, "[line %d] Error: Unexpected character: %s\n", tok.Line, string(tok.Literal))
+			fmt.Fprintf(stderr, "[line %d] Error: Unexpected character: %s\n", tok.Line, string(tok.Lexeme))
 			ok = false
 		} else {
-			fmt.Fprintf(stdout, "%s %s null\n", tok.Name, tok.Literal)
+			fmt.Fprintf(stdout, "%s %s null\n", tok.Type, tok.Lexeme)
 		}
 	}
 

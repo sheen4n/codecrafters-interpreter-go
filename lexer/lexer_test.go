@@ -12,8 +12,8 @@ func TestNextToken(t *testing.T) {
 	!`
 
 	tests := []struct {
-		expectedType    token.TokenType
-		expectedLiteral string
+		expectedType   token.TokenType
+		expectedLexeme string
 	}{
 		{token.EQUAL, "="},
 		{token.PLUS, "+"},
@@ -43,9 +43,9 @@ func TestNextToken(t *testing.T) {
 			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
 				i, tt.expectedType, tok.Type)
 		}
-		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
-				i, tt.expectedLiteral, tok.Literal)
+		if tok.Lexeme != tt.expectedLexeme {
+			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
+				i, tt.expectedLexeme, tok.Lexeme)
 		}
 	}
 }
@@ -54,8 +54,8 @@ func TestLexComments(t *testing.T) {
 	input := "=// This is a comment"
 
 	tests := []struct {
-		expectedType    token.TokenType
-		expectedLiteral string
+		expectedType   token.TokenType
+		expectedLexeme string
 	}{
 		{token.EQUAL, "="},
 		{token.EOF, "\x00"},
@@ -69,9 +69,9 @@ func TestLexComments(t *testing.T) {
 			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
 				i, tt.expectedType, tok.Type)
 		}
-		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
-				i, tt.expectedLiteral, tok.Literal)
+		if tok.Lexeme != tt.expectedLexeme {
+			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
+				i, tt.expectedLexeme, tok.Lexeme)
 		}
 	}
 }
@@ -81,9 +81,9 @@ func TestMultilineError(t *testing.T) {
 )	@`
 
 	tests := []struct {
-		expectedType    token.TokenType
-		expectedLiteral string
-		expectedLine    int
+		expectedType   token.TokenType
+		expectedLexeme string
+		expectedLine   int
 	}{
 		{token.ILLEGAL, "#", 1},
 		{token.LEFT_PAREN, "(", 1},
@@ -100,9 +100,9 @@ func TestMultilineError(t *testing.T) {
 			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
 				i, tt.expectedType, tok.Type)
 		}
-		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
-				i, tt.expectedLiteral, tok.Literal)
+		if tok.Lexeme != tt.expectedLexeme {
+			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
+				i, tt.expectedLexeme, tok.Lexeme)
 		}
 		if tok.Line != tt.expectedLine {
 			t.Fatalf("tests[%d] - line wrong. expected=%d, got=%d",
