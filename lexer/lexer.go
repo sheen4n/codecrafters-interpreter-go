@@ -1,6 +1,8 @@
 package lexer
 
 import (
+	"fmt"
+
 	"github.com/codecrafters-io/interpreter-starter-go/token"
 )
 
@@ -43,6 +45,15 @@ func (l *Lexer) skipWhitespace() {
 		}
 		l.readChar()
 	}
+}
+
+func (l *Lexer) readString() string {
+	startPos := l.position
+	for l.ch != '"' && l.ch != 0 {
+		l.readChar()
+	}
+	l.readChar()
+	return l.input[startPos : l.position-1]
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -111,6 +122,12 @@ func (l *Lexer) NextToken() token.Token {
 		} else {
 			tok = token.New(token.SLASH, string(l.ch), "null", l.line)
 		}
+
+	case '"':
+		l.readChar()
+		s := l.readString()
+		tok = token.New(token.STRING, fmt.Sprintf(`"%s"`, s), s, l.line)
+		return tok
 
 	default:
 		tok = token.New(token.ILLEGAL, string(l.ch), "null", l.line)

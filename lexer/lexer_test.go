@@ -110,3 +110,36 @@ func TestMultilineError(t *testing.T) {
 		}
 	}
 }
+
+func TestString(t *testing.T) {
+	input := `"hello world"
+"foo bar"`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLexeme  string
+		expectedLiteral string
+	}{
+		{token.STRING, `"hello world"`, "hello world"},
+		{token.STRING, `"foo bar"`, "foo bar"},
+		{token.EOF, "\x00", "null"},
+	}
+
+	l := New(input)
+
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+				i, tt.expectedType, tok.Type)
+		}
+		if tok.Lexeme != tt.expectedLexeme {
+			t.Fatalf("tests[%d] - lexeme wrong. expected=%q, got=%q",
+				i, tt.expectedLexeme, tok.Lexeme)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+				i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}

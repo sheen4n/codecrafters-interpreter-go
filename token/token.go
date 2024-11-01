@@ -35,6 +35,9 @@ const (
 	RIGHT_BRACE = "RIGHT_BRACE"
 	SEMICOLON   = "SEMICOLON"
 	COMMA       = "COMMA"
+
+	// Keywords
+	STRING = "STRING"
 )
 
 func New(tokenType TokenType, ch, literal string, line int) Token {
