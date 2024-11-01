@@ -124,3 +124,16 @@ func TestNumberLiterals(t *testing.T) {
 	testLexTokens(t, input, expected)
 }
 
+func TestIdentifiers(t *testing.T) {
+	input := `foo bar _hello _123_hello`
+
+	expected := []token.Token{
+		{Type: token.IDENTIFIER, Lexeme: "foo", Literal: "null", Line: 1},
+		{Type: token.IDENTIFIER, Lexeme: "bar", Literal: "null", Line: 1},
+		{Type: token.IDENTIFIER, Lexeme: "_hello", Literal: "null", Line: 1},
+		{Type: token.IDENTIFIER, Lexeme: "_123_hello", Literal: "null", Line: 1},
+		{Type: token.EOF, Lexeme: "\x00", Literal: "null", Line: 1},
+	}
+
+	testLexTokens(t, input, expected)
+}

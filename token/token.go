@@ -40,8 +40,9 @@ const (
 	COMMA       = "COMMA"
 
 	// Keywords
-	STRING = "STRING"
-	NUMBER = "NUMBER"
+	STRING     = "STRING"
+	NUMBER     = "NUMBER"
+	IDENTIFIER = "IDENTIFIER"
 )
 
 func New(tokenType TokenType, ch, literal string, line int) Token {

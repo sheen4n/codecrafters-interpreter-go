@@ -91,6 +91,22 @@ func (l *Lexer) readNumber() token.Token {
 	return token.New(token.NUMBER, lexeme, literal, l.line)
 }
 
+func isLetter(ch byte) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
+
+func isDigit(ch byte) bool {
+	return '0' <= ch && ch <= '9'
+}
+
+func (l *Lexer) readIdentifier() string {
+	startPos := l.position
+	for isLetter(l.ch) || isDigit(l.ch) {
+		l.readChar()
+	}
+	return l.input[startPos:l.position]
+}
+
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 	l.skipWhitespace()
@@ -166,6 +182,10 @@ func (l *Lexer) NextToken() token.Token {
 		return l.readNumber()
 
 	default:
+		if isLetter(l.ch) {
+			lexeme := l.readIdentifier()
+			return token.New(token.IDENTIFIER, lexeme, "null", l.line)
+		}
 		tok = token.New(token.ILLEGAL, string(l.ch), "null", l.line)
 	}
 
