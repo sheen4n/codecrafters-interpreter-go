@@ -72,10 +72,10 @@ LEFT_PAREN ( null
 EOF  null
 `,
 			wantErr: `[line 1] Error: Unexpected character: $
-[line 1] Error: Unexpected character: #
+[line 2] Error: Unexpected character: #
 `,
 			setupFile: func(filename string) error {
-				return os.WriteFile(filename, []byte(",.$(#"), 0644)
+				return os.WriteFile(filename, []byte(",.$(\n#"), 0644)
 			},
 		},
 	}

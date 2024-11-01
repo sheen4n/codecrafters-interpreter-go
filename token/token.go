@@ -6,6 +6,7 @@ type Token struct {
 	Type    TokenType
 	Literal string
 	Name    string
+	Line    int
 }
 
 const (
@@ -36,6 +37,6 @@ const (
 	COMMA       = ","
 )
 
-func New(tokenType TokenType, ch string, name string) Token {
-	return Token{Type: tokenType, Literal: ch, Name: name}
+func New(tokenType TokenType, ch string, name string, line int) Token {
+	return Token{Type: tokenType, Literal: ch, Name: name, Line: line}
 }
