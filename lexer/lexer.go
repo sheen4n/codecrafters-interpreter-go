@@ -35,12 +35,15 @@ func (l *Lexer) peekChar() byte {
 	return l.input[l.readPosition]
 }
 
-func (l *Lexer) curToken() byte {
-	return l.input[l.position]
+func (l *Lexer) skipWhitespace() {
+	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+		l.readChar()
+	}
 }
 
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
+	l.skipWhitespace()
 
 	switch l.ch {
 	case 0:

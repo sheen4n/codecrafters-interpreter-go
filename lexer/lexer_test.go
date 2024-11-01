@@ -7,7 +7,9 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `=+(){},;==!!=<><=>=/`
+	input := `=+(){},;==!!=<><=>=/
+	
+	!`
 
 	tests := []struct {
 		expectedType    token.TokenType
@@ -29,6 +31,7 @@ func TestNextToken(t *testing.T) {
 		{token.LESS_EQUAL, "<="},
 		{token.GREATER_EQUAL, ">="},
 		{token.SLASH, "/"},
+		{token.BANG, "!"},
 		{token.EOF, "\x00"},
 	}
 
