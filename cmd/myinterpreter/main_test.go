@@ -134,6 +134,13 @@ func TestParse(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("true"), 0644) },
 		},
+		{
+			name:       "parse nil",
+			filename:   "nil.txt",
+			wantOutput: "nil\n",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("nil"), 0644) },
+		},
 	}
 
 	for _, tt := range tests {
