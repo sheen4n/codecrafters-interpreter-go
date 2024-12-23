@@ -6,14 +6,11 @@ import (
 	"os"
 
 	"github.com/codecrafters-io/interpreter-starter-go/lexer"
+	"github.com/codecrafters-io/interpreter-starter-go/parser"
 	"github.com/codecrafters-io/interpreter-starter-go/token"
 )
 
-func tokenize(command, filename string, stdout, stderr io.Writer) bool {
-	if command != "tokenize" {
-		fmt.Fprintf(stderr, "unknown command: %s\n", command)
-		return false
-	}
+func tokenize(filename string, stdout, stderr io.Writer) bool {
 
 	fileContents, err := os.ReadFile(filename)
 	if err != nil {
@@ -40,13 +37,41 @@ func tokenize(command, filename string, stdout, stderr io.Writer) bool {
 	return ok
 }
 
+func parse(filename string, stdout, stderr io.Writer) bool {
+	fileContents, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Fprintf(stderr, "error reading file: %v\n", err)
+		return false
+	}
+
+	p := parser.New(lexer.New(string(fileContents)))
+
+	program := p.ParseProgram()
+
+	fmt.Fprintln(stdout, program.String())
+	return true
+}
+
+func run(command, filename string, stdout, stderr io.Writer) bool {
+	if command == "tokenize" {
+		return tokenize(filename, stdout, stderr)
+	}
+
+	if command == "parse" {
+		return parse(filename, stdout, stderr)
+	}
+
+	fmt.Fprintf(stderr, "unknown command: %s\n", command)
+	return false
+}
+
 func main() {
 	if len(os.Args) < 3 {
 		fmt.Fprintln(os.Stderr, "Usage: ./your_program.sh tokenize <filename>")
 		os.Exit(1)
 	}
 
-	ok := tokenize(os.Args[1], os.Args[2], os.Stdout, os.Stderr)
+	ok := run(os.Args[1], os.Args[2], os.Stdout, os.Stderr)
 	if !ok {
 		os.Exit(65)
 	}
