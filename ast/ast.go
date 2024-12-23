@@ -79,3 +79,12 @@ type Nil struct {
 func (n *Nil) expressionNode()      {}
 func (n *Nil) TokenLiteral() string { return n.Token.Literal }
 func (n *Nil) String() string       { return n.Token.Lexeme }
+
+type NumberLiteral struct {
+	Token token.Token
+	Value float64
+}
+
+func (il *NumberLiteral) expressionNode()      {}
+func (il *NumberLiteral) TokenLiteral() string { return il.Token.Literal }
+func (il *NumberLiteral) String() string       { return il.Token.Lexeme }

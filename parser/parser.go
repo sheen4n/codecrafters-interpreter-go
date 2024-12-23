@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/codecrafters-io/interpreter-starter-go/ast"
 	"github.com/codecrafters-io/interpreter-starter-go/lexer"
@@ -105,6 +106,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.TRUE, p.parseBoolean)
 	p.registerPrefix(token.FALSE, p.parseBoolean)
 	p.registerPrefix(token.NIL, p.parseNil)
+	p.registerPrefix(token.NUMBER, p.parseNumberLiteral)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 
@@ -168,4 +170,13 @@ func (p *Parser) parseBoolean() ast.Expression {
 
 func (p *Parser) parseNil() ast.Expression {
 	return &ast.Nil{Token: p.curToken}
+}
+
+func (p *Parser) parseNumberLiteral() ast.Expression {
+	num, err := strconv.ParseFloat(p.curToken.Literal, 64)
+	if err != nil {
+		p.errors = append(p.errors, fmt.Sprintf("could not parse %q as number", p.curToken.Literal))
+		return nil
+	}
+	return &ast.NumberLiteral{Token: p.curToken, Value: num}
 }
