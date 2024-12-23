@@ -178,5 +178,6 @@ func (p *Parser) parseNumberLiteral() ast.Expression {
 		p.errors = append(p.errors, fmt.Sprintf("could not parse %q as number", p.curToken.Literal))
 		return nil
 	}
+
 	return &ast.NumberLiteral{Token: p.curToken, Value: num}
 }

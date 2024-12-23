@@ -87,4 +87,4 @@ type NumberLiteral struct {
 
 func (il *NumberLiteral) expressionNode()      {}
 func (il *NumberLiteral) TokenLiteral() string { return il.Token.Literal }
-func (il *NumberLiteral) String() string       { return il.Token.Lexeme }
+func (il *NumberLiteral) String() string       { return il.Token.Literal }
