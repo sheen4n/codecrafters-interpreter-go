@@ -168,3 +168,39 @@ func TestGroupExpression(t *testing.T) {
 		t.Errorf("group.String() not %q. got=%q", "(group foo)", group.String())
 	}
 }
+
+func TestUnaryExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"-true", "(- true)"},
+		// {"-42.47", "(- 42.47)"},
+		// {"!true", "(! true)"},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+		}
+
+		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+		}
+
+		unary, ok := stmt.Expression.(*ast.PrefixExpression)
+		if !ok {
+			t.Fatalf("exp not *ast.PrefixExpression. got=%T", stmt.Expression)
+		}
+
+		if unary.String() != tt.expected {
+			t.Errorf("unary.String() not %q. got=%q", tt.expected, unary.String())
+		}
+	}
+}

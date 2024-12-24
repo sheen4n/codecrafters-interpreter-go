@@ -181,6 +181,20 @@ func TestParse(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`("foo")`), 0644) },
 		},
+		{
+			name:       "parse unary",
+			filename:   "unary.txt",
+			wantOutput: "(- true)",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`-true`), 0644) },
+		},
+		{
+			name:       "parse bang",
+			filename:   "bang.txt",
+			wantOutput: "(! true)",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`!true`), 0644) },
+		},
 	}
 
 	for _, tt := range tests {

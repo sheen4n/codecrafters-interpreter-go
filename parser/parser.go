@@ -123,7 +123,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.NUMBER, p.parseNumberLiteral)
 	p.registerPrefix(token.STRING, p.parseStringLiteral)
 	p.registerPrefix(token.LEFT_PAREN, p.parseGroupExpression)
-
+	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 
 	// Read two tokens, so curToken and peekToken are both set
@@ -209,4 +210,16 @@ func (p *Parser) parseGroupExpression() ast.Expression {
 		return nil
 	}
 	return &ast.GroupExpression{Token: p.curToken, Expression: exp}
+}
+
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	// defer untrace((trace("parsePrefixExpression")))
+	expression := &ast.PrefixExpression{
+		Token:    p.curToken,
+		Operator: p.curToken.Lexeme,
+	}
+
+	p.nextToken()
+	expression.Right = p.parseExpression(PREFIX)
+	return expression
 }
