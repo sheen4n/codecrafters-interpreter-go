@@ -216,6 +216,13 @@ func TestParse(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"foo" != "bar"`), 0644) },
 		},
+		{
+			name:       "parse syntax error",
+			filename:   "syntax_error.txt",
+			wantOutput: "",
+			wantErr:    "[line 1] Error at ')': Expect expression.",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`(72 + )`), 0644) },
+		},
 	}
 
 	for _, tt := range tests {
@@ -233,17 +240,19 @@ func TestParse(t *testing.T) {
 
 			// Check error
 			errOutput := stderr.String()
-			if tt.wantErr != "" && errOutput != tt.wantErr {
-				t.Errorf("expected error output\n%v, got\n%v", tt.wantErr, errOutput)
+			if tt.wantErr != "" {
+				if strings.TrimSpace(errOutput) != strings.TrimSpace(tt.wantErr) {
+					t.Errorf("expected error %v, got %v", tt.wantErr, errOutput)
+				}
 				if ok {
-					t.Errorf("expected error, got success")
+					t.Errorf("expected parse to return false for syntax error")
 				}
 			}
 
 			// Check output
 			output := stdout.String()
 			if tt.wantOutput != "" && strings.TrimSpace(output) != tt.wantOutput {
-				t.Errorf("expected output\n%v, got\n%v, \nexpected: \n%q\n,output: \n%q", tt.wantOutput, output, tt.wantOutput, output)
+				t.Errorf("expected output %v, got %v", tt.wantOutput, output)
 			}
 		})
 	}

@@ -266,3 +266,28 @@ func TestComparisonExpression(t *testing.T) {
 		}
 	}
 }
+
+func TestSyntaxError(t *testing.T) {
+	tests := []struct {
+		input         string
+		expectedError string
+	}{
+		{"(72 +)", "[line 1] Error at ')': Expect expression."},
+	}
+
+	for _, tt := range tests {
+
+		l := lexer.New(tt.input)
+		p := New(l)
+		p.ParseProgram()
+
+		errors := p.Errors()
+		if len(errors) == 0 {
+			t.Errorf("expected error, got none")
+		}
+
+		if errors[0] != tt.expectedError {
+			t.Errorf("expected error %q, got %q", tt.expectedError, errors[0])
+		}
+	}
+}

@@ -2,7 +2,9 @@ package parser
 
 import (
 	"fmt"
+	"io"
 	"strconv"
+	"strings"
 
 	"github.com/codecrafters-io/interpreter-starter-go/ast"
 	"github.com/codecrafters-io/interpreter-starter-go/lexer"
@@ -81,13 +83,13 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		p.nextToken()
 		return true
 	}
-	p.peekError(t)
+	p.peekError()
 	return false
 }
 
-func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
-	p.errors = append(p.errors, msg)
+func (p *Parser) peekError() {
+	// msg := fmt.Sprintf("[line %d] Error at '%s': Expect expression.", p.peekToken.Line, p.peekToken.Lexeme)
+	// p.errors = append(p.errors, msg)
 }
 
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
@@ -109,6 +111,16 @@ func (p *Parser) ParseProgram() *ast.Program {
 	}
 
 	return program
+}
+
+func (p *Parser) CheckErrors(stderr io.Writer) bool {
+	if len(p.errors) == 0 {
+		return true
+	}
+
+	msg := strings.Join(p.errors, "\n")
+	fmt.Fprintln(stderr, msg)
+	return false
 }
 
 func (p *Parser) Errors() []string {
@@ -177,15 +189,15 @@ func (p *Parser) parseExpressmentStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
-func (p *Parser) noPrefixParseFnError(t token.TokenType) {
-	msg := fmt.Sprintf("no prefix parse function for %s found", t)
+func (p *Parser) noPrefixParseFnError(t token.Token) {
+	msg := fmt.Sprintf("[line %d] Error at '%s': Expect expression.", t.Line, t.Lexeme)
 	p.errors = append(p.errors, msg)
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 	if prefix == nil {
-		p.noPrefixParseFnError(p.curToken.Type)
+		p.noPrefixParseFnError(p.curToken)
 		return nil
 	}
 
@@ -267,6 +279,7 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	}
 	precedence := p.curPrecedence()
 	p.nextToken()
+
 	expression.Right = p.parseExpression(precedence)
 	return expression
 }

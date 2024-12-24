@@ -47,6 +47,9 @@ func parse(filename string, stdout, stderr io.Writer) bool {
 	p := parser.New(lexer.New(string(fileContents)))
 
 	program := p.ParseProgram()
+	if !p.CheckErrors(stderr) {
+		return false
+	}
 
 	fmt.Fprintln(stdout, program.String())
 	return true
@@ -58,7 +61,9 @@ func run(command, filename string, stdout, stderr io.Writer) bool {
 	}
 
 	if command == "parse" {
-		return parse(filename, stdout, stderr)
+		if !parse(filename, stdout, stderr) {
+			os.Exit(65)
+		}
 	}
 
 	fmt.Fprintf(stderr, "unknown command: %s\n", command)
