@@ -240,3 +240,27 @@ func TestInfixExpression(t *testing.T) {
 		}
 	}
 }
+
+func TestComparisonExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"1 < 2", "(< 1.0 2.0)"},
+		{"1 > 2", "(> 1.0 2.0)"},
+		{"1 <= 2", "(<= 1.0 2.0)"},
+		{"1 >= 2", "(>= 1.0 2.0)"},
+		{"83 < 99 < 115", "(< (< 83.0 99.0) 115.0)"},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+		}
+	}
+}
