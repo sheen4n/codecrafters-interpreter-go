@@ -61,9 +61,7 @@ func run(command, filename string, stdout, stderr io.Writer) bool {
 	}
 
 	if command == "parse" {
-		if !parse(filename, stdout, stderr) {
-			os.Exit(65)
-		}
+		return parse(filename, stdout, stderr)
 	}
 
 	fmt.Fprintf(stderr, "unknown command: %s\n", command)
