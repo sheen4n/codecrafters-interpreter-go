@@ -67,6 +67,20 @@ func (p *Parser) peekPrecedence() int {
 	return LOWEST
 }
 
+func (p *Parser) expectPeek(t token.TokenType) bool {
+	if p.peekTokenIs(t) {
+		p.nextToken()
+		return true
+	}
+	p.peekError(t)
+	return false
+}
+
+func (p *Parser) peekError(t token.TokenType) {
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
+	p.errors = append(p.errors, msg)
+}
+
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 	p.prefixParseFns[tokenType] = fn
 }
@@ -108,6 +122,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.NIL, p.parseNil)
 	p.registerPrefix(token.NUMBER, p.parseNumberLiteral)
 	p.registerPrefix(token.STRING, p.parseStringLiteral)
+	p.registerPrefix(token.LEFT_PAREN, p.parseGroupExpression)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 
@@ -185,4 +200,13 @@ func (p *Parser) parseNumberLiteral() ast.Expression {
 
 func (p *Parser) parseStringLiteral() ast.Expression {
 	return &ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
+}
+
+func (p *Parser) parseGroupExpression() ast.Expression {
+	p.nextToken()
+	exp := p.parseExpression(LOWEST)
+	if !p.expectPeek(token.RIGHT_PAREN) {
+		return nil
+	}
+	return &ast.GroupExpression{Token: p.curToken, Expression: exp}
 }

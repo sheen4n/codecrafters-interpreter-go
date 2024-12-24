@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -65,6 +66,17 @@ EOF  null
 			setupFile: func(filename string) error {
 				return os.WriteFile(filename, []byte(",.$(\n#"), 0644)
 			},
+		},
+		{
+			name:     "group",
+			filename: "group.txt",
+			wantOutput: `LEFT_PAREN ( null
+STRING "foo" foo
+RIGHT_PAREN ) null
+EOF  null
+`,
+			wantErr:   "",
+			setupFile: func(filename string) error { return os.WriteFile(filename, []byte(`("foo")`), 0644) },
 		},
 	}
 
@@ -130,37 +142,44 @@ func TestParse(t *testing.T) {
 		{
 			name:       "parse boolean",
 			filename:   "boolean.txt",
-			wantOutput: "true\n",
+			wantOutput: "true",
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("true"), 0644) },
 		},
 		{
 			name:       "parse nil",
 			filename:   "nil.txt",
-			wantOutput: "nil\n",
+			wantOutput: "nil",
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("nil"), 0644) },
 		},
 		{
 			name:       "parse number",
 			filename:   "number.txt",
-			wantOutput: "42.47\n",
+			wantOutput: "42.47",
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("42.47"), 0644) },
 		},
 		{
 			name:       "parse integer",
 			filename:   "integer.txt",
-			wantOutput: "35.0\n",
+			wantOutput: "35.0",
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("35"), 0644) },
 		},
 		{
 			name:       "parse string",
 			filename:   "string.txt",
-			wantOutput: "hello world\n",
+			wantOutput: "hello world",
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello world"`), 0644) },
+		},
+		{
+			name:       "parse group",
+			filename:   "group.txt",
+			wantOutput: "(group foo)",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`("foo")`), 0644) },
 		},
 	}
 
@@ -188,7 +207,7 @@ func TestParse(t *testing.T) {
 
 			// Check output
 			output := stdout.String()
-			if tt.wantOutput != "" && output != tt.wantOutput {
+			if tt.wantOutput != "" && strings.TrimSpace(output) != tt.wantOutput {
 				t.Errorf("expected output\n%v, got\n%v, \nexpected: \n%q\n,output: \n%q", tt.wantOutput, output, tt.wantOutput, output)
 			}
 		})

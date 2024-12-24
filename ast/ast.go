@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/codecrafters-io/interpreter-starter-go/token"
 )
@@ -97,3 +98,14 @@ type StringLiteral struct {
 func (sl *StringLiteral) expressionNode()      {}
 func (sl *StringLiteral) TokenLiteral() string { return sl.Token.Literal }
 func (sl *StringLiteral) String() string       { return sl.Token.Literal }
+
+type GroupExpression struct {
+	Token      token.Token // the LEFT_PAREN token
+	Expression Expression
+}
+
+func (ge *GroupExpression) expressionNode()      {}
+func (ge *GroupExpression) TokenLiteral() string { return ge.Token.Literal }
+func (ge *GroupExpression) String() string {
+	return fmt.Sprintf("(group %s)", ge.Expression.String())
+}
