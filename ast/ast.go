@@ -88,3 +88,12 @@ type NumberLiteral struct {
 func (il *NumberLiteral) expressionNode()      {}
 func (il *NumberLiteral) TokenLiteral() string { return il.Token.Literal }
 func (il *NumberLiteral) String() string       { return il.Token.Literal }
+
+type StringLiteral struct {
+	Token token.Token
+	Value string
+}
+
+func (sl *StringLiteral) expressionNode()      {}
+func (sl *StringLiteral) TokenLiteral() string { return sl.Token.Literal }
+func (sl *StringLiteral) String() string       { return sl.Token.Literal }

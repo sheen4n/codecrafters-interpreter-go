@@ -155,6 +155,13 @@ func TestParse(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("35"), 0644) },
 		},
+		{
+			name:       "parse string",
+			filename:   "string.txt",
+			wantOutput: "hello world\n",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello world"`), 0644) },
+		},
 	}
 
 	for _, tt := range tests {
