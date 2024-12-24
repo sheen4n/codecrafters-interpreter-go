@@ -251,6 +251,8 @@ func TestComparisonExpression(t *testing.T) {
 		{"1 <= 2", "(<= 1.0 2.0)"},
 		{"1 >= 2", "(>= 1.0 2.0)"},
 		{"83 < 99 < 115", "(< (< 83.0 99.0) 115.0)"},
+		{`"baz" == "baz"`, `(== baz baz)`},
+		{`"foo" != "bar"`, `(!= foo bar)`},
 	}
 
 	for _, tt := range tests {

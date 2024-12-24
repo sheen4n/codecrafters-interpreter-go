@@ -209,6 +209,13 @@ func TestParse(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`83 < 99 < 115`), 0644) },
 		},
+		{
+			name:       "parse comparison",
+			filename:   "comparison.txt",
+			wantOutput: `(!= foo bar)`,
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"foo" != "bar"`), 0644) },
+		},
 	}
 
 	for _, tt := range tests {
