@@ -34,6 +34,13 @@ var precedences = map[token.TokenType]int{
 	token.LEFT_BRACE: INDEX,
 }
 
+func (p *Parser) curPrecedence() int {
+	if p, ok := precedences[p.curToken.Type]; ok {
+		return p
+	}
+	return LOWEST
+}
+
 type (
 	prefixParseFn func() ast.Expression
 	infixParseFn  func(ast.Expression) ast.Expression
@@ -85,6 +92,10 @@ func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 	p.prefixParseFns[tokenType] = fn
 }
 
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	p.infixParseFns[tokenType] = fn
+}
+
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
@@ -125,7 +136,12 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.LEFT_PAREN, p.parseGroupExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
+
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
+	p.registerInfix(token.PLUS, p.parseInfixExpression)
+	p.registerInfix(token.SLASH, p.parseInfixExpression)
+	p.registerInfix(token.STAR, p.parseInfixExpression)
+	p.registerInfix(token.MINUS, p.parseInfixExpression)
 
 	// Read two tokens, so curToken and peekToken are both set
 	// Sets the peekToken by calling the lexer's NextToken method
@@ -159,7 +175,6 @@ func (p *Parser) noPrefixParseFnError(t token.TokenType) {
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
-	// defer untrace((trace("parseExpression")))
 	prefix := p.prefixParseFns[p.curToken.Type]
 	if prefix == nil {
 		p.noPrefixParseFnError(p.curToken.Type)
@@ -167,6 +182,19 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	}
 
 	leftExp := prefix()
+
+	// if precedence is less than the peek precedence, we need to parse more
+	// e.g. 1 + 2 * 3
+	//    +
+	// 1     *
+	//     2   3
+
+	// if precedence is greater or equal than the peek precedence, we need to stop parsing the group
+	// if precedence is greater or equal than the peek precedence, we need to stop parsing the group
+	// e.g. 3 * 4 + 5
+	//      +
+	//   *     5
+	// 3   4
 
 	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
@@ -213,7 +241,6 @@ func (p *Parser) parseGroupExpression() ast.Expression {
 }
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
-	// defer untrace((trace("parsePrefixExpression")))
 	expression := &ast.PrefixExpression{
 		Token:    p.curToken,
 		Operator: p.curToken.Lexeme,
@@ -221,5 +248,17 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 
 	p.nextToken()
 	expression.Right = p.parseExpression(PREFIX)
+	return expression
+}
+
+func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	expression := &ast.InfixExpression{
+		Token:    p.curToken,
+		Operator: p.curToken.Lexeme,
+		Left:     left,
+	}
+	precedence := p.curPrecedence()
+	p.nextToken()
+	expression.Right = p.parseExpression(precedence)
 	return expression
 }

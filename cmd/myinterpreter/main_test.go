@@ -195,6 +195,13 @@ func TestParse(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`!true`), 0644) },
 		},
+		{
+			name:       "parse infix",
+			filename:   "infix.txt",
+			wantOutput: "(/ (* 16.0 38.0) 58.0)",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`16 * 38 / 58`), 0644) },
+		},
 	}
 
 	for _, tt := range tests {
