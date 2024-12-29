@@ -285,6 +285,13 @@ func TestEvaluate(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("true"), 0644) },
 		},
+		{
+			name:       "evaluate nil",
+			filename:   "nil.txt",
+			wantOutput: "nil",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("nil"), 0644) },
+		},
 	}
 
 	for _, tt := range tests {

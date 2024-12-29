@@ -29,6 +29,14 @@ func testBooleanObject(t *testing.T, obj object.Object, expected bool) bool {
 	return true
 }
 
+func testNilObject(t *testing.T, obj object.Object) bool {
+	if obj.Type() != object.NIL_OBJ {
+		t.Errorf("object is not nil. got=%T (%+v)", obj, obj)
+		return false
+	}
+	return true
+}
+
 func TestEvalBooleanExpression(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -42,4 +50,9 @@ func TestEvalBooleanExpression(t *testing.T) {
 		evaluated := testEval(tt.input)
 		testBooleanObject(t, evaluated, tt.expected)
 	}
+}
+
+func TestEvalNil(t *testing.T) {
+	evaluated := testEval("nil")
+	testNilObject(t, evaluated)
 }
