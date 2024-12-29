@@ -306,6 +306,13 @@ func TestEvaluate(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("10.4"), 0644) },
 		},
+		{
+			name:       "evaluate group",
+			filename:   "group.txt",
+			wantOutput: "10.4",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("(10.4)"), 0644) },
+		},
 	}
 
 	for _, tt := range tests {

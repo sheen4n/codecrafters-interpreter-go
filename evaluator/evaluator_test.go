@@ -103,3 +103,17 @@ func TestEvalNumber(t *testing.T) {
 		testNumberObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestEvalGroupExpression(t *testing.T) {
+	evaluated := testEval("(10.4)")
+	testNumberObject(t, evaluated, 10.4)
+
+	evaluated = testEval("(true)")
+	testBooleanObject(t, evaluated, true)
+
+	evaluated = testEval("(nil)")
+	testNilObject(t, evaluated)
+
+	evaluated = testEval(`("hello world!")`)
+	testStringObject(t, evaluated, "hello world!")
+}
