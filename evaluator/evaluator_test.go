@@ -134,3 +134,22 @@ func TestUnaryExpression(t *testing.T) {
 	evaluated = testEval("-(-10.4)")
 	testNumberObject(t, evaluated, 10.4)
 }
+
+func TestEvaluateArithmeticExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected float64
+	}{
+		{"42 / 5", 8.4},
+		{"18 * 3 / (3 * 6)", 3},
+		{"(10.40 * 2) / 2", 10.4},
+		{"10.4 + 10.4", 20.8},
+		{"10.4 - 10.4", 0},
+		{"10.4 / 10.4", 1},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testNumberObject(t, evaluated, tt.expected)
+	}
+}

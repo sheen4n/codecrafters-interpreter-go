@@ -320,6 +320,13 @@ func TestEvaluate(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("!true"), 0644) },
 		},
+		{
+			name:       "evaluate arithmetic",
+			filename:   "arithmetic.txt",
+			wantOutput: "20.8",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("10.4 + 10.4"), 0644) },
+		},
 	}
 
 	for _, tt := range tests {
