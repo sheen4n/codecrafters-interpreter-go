@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/codecrafters-io/interpreter-starter-go/evaluator"
 	"github.com/codecrafters-io/interpreter-starter-go/lexer"
 	"github.com/codecrafters-io/interpreter-starter-go/parser"
 	"github.com/codecrafters-io/interpreter-starter-go/token"
@@ -55,6 +56,30 @@ func parse(filename string, stdout, stderr io.Writer) bool {
 	return true
 }
 
+func evaluate(filename string, stdout, stderr io.Writer) bool {
+	fileContents, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Fprintf(stderr, "error reading file: %v\n", err)
+		return false
+	}
+
+	p := parser.New(lexer.New(string(fileContents)))
+
+	program := p.ParseProgram()
+	if !p.CheckErrors(stderr) {
+		return false
+	}
+
+	// TODO: Add environment
+	evaluated := evaluator.Eval(program)
+	if evaluated != nil {
+		io.WriteString(stdout, evaluated.Inspect())
+		io.WriteString(stdout, "\n")
+	}
+
+	return true
+}
+
 func run(command, filename string, stdout, stderr io.Writer) bool {
 	if command == "tokenize" {
 		return tokenize(filename, stdout, stderr)
@@ -62,6 +87,10 @@ func run(command, filename string, stdout, stderr io.Writer) bool {
 
 	if command == "parse" {
 		return parse(filename, stdout, stderr)
+	}
+
+	if command == "evaluate" {
+		return evaluate(filename, stdout, stderr)
 	}
 
 	fmt.Fprintf(stderr, "unknown command: %s\n", command)

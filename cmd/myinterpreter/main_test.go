@@ -269,3 +269,58 @@ func TestParse(t *testing.T) {
 		})
 	}
 }
+
+func TestEvaluate(t *testing.T) {
+	tests := []struct {
+		name       string
+		filename   string
+		wantOutput string
+		wantErr    string
+		setupFile  func(string) error
+	}{
+		{
+			name:       "evaluate boolean",
+			filename:   "boolean.txt",
+			wantOutput: "true",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("true"), 0644) },
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Set up any necessary files
+			if tt.setupFile != nil {
+				defer os.Remove(tt.filename)
+				if err := tt.setupFile(tt.filename); err != nil {
+					t.Fatalf("failed to set up file: %v", err)
+				}
+			}
+
+			var stdout, stderr bytes.Buffer
+			ok := evaluate(tt.filename, &stdout, &stderr)
+
+			// Check error
+			errOutput := stderr.String()
+
+			if tt.wantErr != "" {
+				if strings.TrimSpace(errOutput) != strings.TrimSpace(tt.wantErr) {
+					t.Errorf("expected error %v, got %v", tt.wantErr, errOutput)
+				}
+				if ok {
+					t.Errorf("expected parse to return false for syntax error")
+				}
+			} else {
+				if errOutput != "" {
+					t.Errorf("expected no error, got %v", errOutput)
+				}
+			}
+
+			// Check output
+			output := stdout.String()
+			if tt.wantOutput != "" && strings.TrimSpace(output) != tt.wantOutput {
+				t.Errorf("expected output %v, got %v", tt.wantOutput, output)
+			}
+		})
+	}
+}
