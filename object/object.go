@@ -7,6 +7,7 @@ type ObjectType string
 const (
 	BOOLEAN_OBJ ObjectType = "BOOLEAN"
 	NIL_OBJ     ObjectType = "NIL"
+	STRING_OBJ  ObjectType = "STRING"
 )
 
 type Object interface {
@@ -25,3 +26,10 @@ type Nil struct{}
 
 func (n *Nil) Type() ObjectType { return NIL_OBJ }
 func (n *Nil) Inspect() string  { return "nil" }
+
+type String struct {
+	Value string
+}
+
+func (s *String) Type() ObjectType { return STRING_OBJ }
+func (s *String) Inspect() string  { return s.Value }

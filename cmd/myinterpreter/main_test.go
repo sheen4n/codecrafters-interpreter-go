@@ -292,6 +292,13 @@ func TestEvaluate(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("nil"), 0644) },
 		},
+		{
+			name:       "evaluate string",
+			filename:   "string.txt",
+			wantOutput: "hello world!",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello world!"`), 0644) },
+		},
 	}
 
 	for _, tt := range tests {

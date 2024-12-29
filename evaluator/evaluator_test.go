@@ -37,6 +37,19 @@ func testNilObject(t *testing.T, obj object.Object) bool {
 	return true
 }
 
+func testStringObject(t *testing.T, obj object.Object, expected string) bool {
+	result, ok := obj.(*object.String)
+	if !ok {
+		t.Errorf("object is not String. got=%T (%+v)", obj, obj)
+		return false
+	}
+	if result.Value != expected {
+		t.Errorf("object has wrong value. got=%q, want=%q", result.Value, expected)
+		return false
+	}
+	return true
+}
+
 func TestEvalBooleanExpression(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -55,4 +68,9 @@ func TestEvalBooleanExpression(t *testing.T) {
 func TestEvalNil(t *testing.T) {
 	evaluated := testEval("nil")
 	testNilObject(t, evaluated)
+}
+
+func TestEvalString(t *testing.T) {
+	evaluated := testEval(`"hello world!"`)
+	testStringObject(t, evaluated, "hello world!")
 }
