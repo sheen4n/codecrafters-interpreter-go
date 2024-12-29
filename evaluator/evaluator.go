@@ -88,15 +88,38 @@ func evalMinusOperatorExpression(right object.Object) object.Object {
 func evalInfixExpression(node *ast.InfixExpression) object.Object {
 	left := Eval(node.Left)
 	right := Eval(node.Right)
+
+	if left.Type() == object.NUMBER_OBJ && right.Type() == object.NUMBER_OBJ {
+		return evalNumberInfixExpression(node, left, right)
+	}
+
+	if node.Operator == "+" && left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ {
+		return evalStringInfixExpression(node, left, right)
+	}
+
+	return nil
+}
+
+func evalNumberInfixExpression(node *ast.InfixExpression, left, right object.Object) object.Object {
+	leftValue := left.(*object.Number).Value
+	rightValue := right.(*object.Number).Value
+
 	switch node.Operator {
 	case "+":
-		return &object.Number{Value: left.(*object.Number).Value + right.(*object.Number).Value}
+		return &object.Number{Value: leftValue + rightValue}
 	case "-":
-		return &object.Number{Value: left.(*object.Number).Value - right.(*object.Number).Value}
+		return &object.Number{Value: leftValue - rightValue}
 	case "*":
-		return &object.Number{Value: left.(*object.Number).Value * right.(*object.Number).Value}
+		return &object.Number{Value: leftValue * rightValue}
 	case "/":
-		return &object.Number{Value: left.(*object.Number).Value / right.(*object.Number).Value}
+		return &object.Number{Value: leftValue / rightValue}
 	}
 	return nil
+}
+
+func evalStringInfixExpression(node *ast.InfixExpression, left, right object.Object) object.Object {
+	leftValue := left.(*object.String).Value
+	rightValue := right.(*object.String).Value
+
+	return &object.String{Value: leftValue + rightValue}
 }

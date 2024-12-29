@@ -327,6 +327,13 @@ func TestEvaluate(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("10.4 + 10.4"), 0644) },
 		},
+		{
+			name:       "evaluate string concatenation",
+			filename:   "string_concatenation.txt",
+			wantOutput: "hello world",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello" + " " + "world"`), 0644) },
+		},
 	}
 
 	for _, tt := range tests {

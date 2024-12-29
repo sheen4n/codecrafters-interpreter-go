@@ -153,3 +153,8 @@ func TestEvaluateArithmeticExpression(t *testing.T) {
 		testNumberObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestStringConcatenation(t *testing.T) {
+	evaluated := testEval(`"hello" + " " + "world"`)
+	testStringObject(t, evaluated, "hello world")
+}
