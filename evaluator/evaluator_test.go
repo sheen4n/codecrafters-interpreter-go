@@ -117,3 +117,20 @@ func TestEvalGroupExpression(t *testing.T) {
 	evaluated = testEval(`("hello world!")`)
 	testStringObject(t, evaluated, "hello world!")
 }
+
+func TestUnaryExpression(t *testing.T) {
+	evaluated := testEval("-10.4")
+	testNumberObject(t, evaluated, -10.4)
+
+	evaluated = testEval("!true")
+	testBooleanObject(t, evaluated, false)
+
+	evaluated = testEval("!false")
+	testBooleanObject(t, evaluated, true)
+
+	evaluated = testEval("!nil")
+	testBooleanObject(t, evaluated, true)
+
+	evaluated = testEval("-(-10.4)")
+	testNumberObject(t, evaluated, 10.4)
+}

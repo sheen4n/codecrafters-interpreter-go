@@ -313,6 +313,13 @@ func TestEvaluate(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("(10.4)"), 0644) },
 		},
+		{
+			name:       "evaluate unary",
+			filename:   "unary.txt",
+			wantOutput: "false",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("!true"), 0644) },
+		},
 	}
 
 	for _, tt := range tests {
