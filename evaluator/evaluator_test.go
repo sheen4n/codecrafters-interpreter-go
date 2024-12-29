@@ -50,6 +50,19 @@ func testStringObject(t *testing.T, obj object.Object, expected string) bool {
 	return true
 }
 
+func testNumberObject(t *testing.T, obj object.Object, expected float64) bool {
+	result, ok := obj.(*object.Number)
+	if !ok {
+		t.Errorf("object is not Number. got=%T (%+v)", obj, obj)
+		return false
+	}
+	if result.Value != expected {
+		t.Errorf("object has wrong value. got=%f, want=%f", result.Value, expected)
+		return false
+	}
+	return true
+}
+
 func TestEvalBooleanExpression(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -73,4 +86,20 @@ func TestEvalNil(t *testing.T) {
 func TestEvalString(t *testing.T) {
 	evaluated := testEval(`"hello world!"`)
 	testStringObject(t, evaluated, "hello world!")
+}
+
+func TestEvalNumber(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected float64
+	}{
+		{"10.40", 10.4},
+		{"10", 10},
+		{"10.400", 10.4},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testNumberObject(t, evaluated, tt.expected)
+	}
 }

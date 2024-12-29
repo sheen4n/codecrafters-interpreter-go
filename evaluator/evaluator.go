@@ -17,6 +17,8 @@ func Eval(node ast.Node) object.Object {
 		return &object.Nil{}
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
+	case *ast.NumberLiteral:
+		return &object.Number{Value: node.Value}
 	}
 	return nil
 }
