@@ -341,6 +341,13 @@ func TestEvaluate(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`57 > -5`), 0644) },
 		},
+		{
+			name:       "evaluate equality operators",
+			filename:   "equality_operators.txt",
+			wantOutput: "true",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello" == "hello"`), 0644) },
+		},
 	}
 
 	for _, tt := range tests {

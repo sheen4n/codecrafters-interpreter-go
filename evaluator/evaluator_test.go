@@ -175,3 +175,22 @@ func TestRelationalOperators(t *testing.T) {
 		testBooleanObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestEqualityOperators(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{`"hello" == "world"`, false},
+		{`"hello" != "world"`, true},
+		{`"hello" == "hello"`, true},
+		{`"hello" != "hello"`, false},
+		{"61 == 61", true},
+		{"61 != 61", false},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testBooleanObject(t, evaluated, tt.expected)
+	}
+}
