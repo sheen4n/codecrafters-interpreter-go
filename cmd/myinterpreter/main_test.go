@@ -348,6 +348,13 @@ func TestEvaluate(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello" == "hello"`), 0644) },
 		},
+		{
+			name:       "evaluate number equality",
+			filename:   "number_equality.txt",
+			wantOutput: "false",
+			wantErr:    "",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`61 == "61"`), 0644) },
+		},
 	}
 
 	for _, tt := range tests {

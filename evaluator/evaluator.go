@@ -97,6 +97,10 @@ func evalInfixExpression(node *ast.InfixExpression) object.Object {
 		return evalStringInfixExpression(node, left, right)
 	}
 
+	if (node.Operator == "==" || node.Operator == "!=") && left.Type() != right.Type() {
+		return FALSE
+	}
+
 	return nil
 }
 

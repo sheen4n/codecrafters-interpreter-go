@@ -187,6 +187,7 @@ func TestEqualityOperators(t *testing.T) {
 		{`"hello" != "hello"`, false},
 		{"61 == 61", true},
 		{"61 != 61", false},
+		{`61 == "61"`, false},
 	}
 
 	for _, tt := range tests {
