@@ -358,8 +358,8 @@ func TestEvaluate(t *testing.T) {
 		{
 			name:       "evaluate error",
 			filename:   "error.txt",
-			wantOutput: "",
-			wantErr:    "Operand must be a number.",
+			wantOutput: "Operand must be a number.",
+			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`-true`), 0644) },
 		},
 	}
