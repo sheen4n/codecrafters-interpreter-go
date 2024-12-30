@@ -94,7 +94,10 @@ func evalInfixExpression(node *ast.InfixExpression) object.Object {
 	}
 
 	if node.Operator == "+" && left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ {
-		return evalStringInfixExpression(node, left, right)
+		leftValue := left.(*object.String).Value
+		rightValue := right.(*object.String).Value
+
+		return &object.String{Value: leftValue + rightValue}
 	}
 
 	return nil
@@ -113,13 +116,14 @@ func evalNumberInfixExpression(node *ast.InfixExpression, left, right object.Obj
 		return &object.Number{Value: leftValue * rightValue}
 	case "/":
 		return &object.Number{Value: leftValue / rightValue}
+	case ">":
+		return nativeToBoolean(leftValue > rightValue)
+	case ">=":
+		return nativeToBoolean(leftValue >= rightValue)
+	case "<":
+		return nativeToBoolean(leftValue < rightValue)
+	case "<=":
+		return nativeToBoolean(leftValue <= rightValue)
 	}
 	return nil
-}
-
-func evalStringInfixExpression(node *ast.InfixExpression, left, right object.Object) object.Object {
-	leftValue := left.(*object.String).Value
-	rightValue := right.(*object.String).Value
-
-	return &object.String{Value: leftValue + rightValue}
 }

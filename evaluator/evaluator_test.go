@@ -158,3 +158,20 @@ func TestStringConcatenation(t *testing.T) {
 	evaluated := testEval(`"hello" + " " + "world"`)
 	testStringObject(t, evaluated, "hello world")
 }
+
+func TestRelationalOperators(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{"57 > -5", true},
+		{"11 >= 11", true},
+		{"(54 - 64) >= -(114 / 57 + 11)", true},
+		{"57 > 500", false},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testBooleanObject(t, evaluated, tt.expected)
+	}
+}
