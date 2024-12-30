@@ -63,6 +63,19 @@ func testNumberObject(t *testing.T, obj object.Object, expected float64) bool {
 	return true
 }
 
+func testErrorObject(t *testing.T, obj object.Object, expected string) bool {
+	result, ok := obj.(*object.Error)
+	if !ok {
+		t.Errorf("object is not Error. got=%T (%+v)", obj, obj)
+		return false
+	}
+	if result.Message != expected {
+		t.Errorf("object has wrong value. got=%q, want=%q", result.Message, expected)
+		return false
+	}
+	return true
+}
+
 func TestEvalBooleanExpression(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -193,5 +206,22 @@ func TestEqualityOperators(t *testing.T) {
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		testBooleanObject(t, evaluated, tt.expected)
+	}
+}
+
+func TestError(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`-"hello world!"`, "Operand must be a number."},
+		{`-true`, "Operand must be a number."},
+		{`-false`, "Operand must be a number."},
+		{`-("foo" + "bar")	`, "Operand must be a number."},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testErrorObject(t, evaluated, tt.expected)
 	}
 }

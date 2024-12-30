@@ -9,6 +9,7 @@ const (
 	NIL_OBJ     ObjectType = "NIL"
 	STRING_OBJ  ObjectType = "STRING"
 	NUMBER_OBJ  ObjectType = "NUMBER"
+	ERROR_OBJ   ObjectType = "ERROR"
 )
 
 type Object interface {
@@ -41,3 +42,8 @@ type Number struct {
 
 func (n *Number) Type() ObjectType { return NUMBER_OBJ }
 func (n *Number) Inspect() string  { return fmt.Sprintf("%g", n.Value) }
+
+type Error struct{ Message string }
+
+func (e *Error) Type() ObjectType { return ERROR_OBJ }
+func (e *Error) Inspect() string  { return e.Message }

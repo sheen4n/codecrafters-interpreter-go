@@ -355,6 +355,13 @@ func TestEvaluate(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`61 == "61"`), 0644) },
 		},
+		{
+			name:       "evaluate error",
+			filename:   "error.txt",
+			wantOutput: "",
+			wantErr:    "Operand must be a number.",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`-true`), 0644) },
+		},
 	}
 
 	for _, tt := range tests {
@@ -378,7 +385,7 @@ func TestEvaluate(t *testing.T) {
 					t.Errorf("expected error %v, got %v", tt.wantErr, errOutput)
 				}
 				if ok {
-					t.Errorf("expected parse to return false for syntax error")
+					t.Errorf("expected evaluate to return false for syntax error")
 				}
 			} else {
 				if errOutput != "" {

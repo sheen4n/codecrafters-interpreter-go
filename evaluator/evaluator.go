@@ -1,6 +1,8 @@
 package evaluator
 
 import (
+	"fmt"
+
 	"github.com/codecrafters-io/interpreter-starter-go/ast"
 	"github.com/codecrafters-io/interpreter-starter-go/object"
 )
@@ -28,7 +30,8 @@ func Eval(node ast.Node) object.Object {
 	case *ast.GroupExpression:
 		return Eval(node.Expression)
 	case *ast.PrefixExpression:
-		return evalPrefixExpression(node)
+		right := Eval(node.Right)
+		return evalPrefixExpression(node.Operator, right)
 	case *ast.InfixExpression:
 		return evalInfixExpression(node)
 	}
@@ -42,24 +45,38 @@ func nativeToBoolean(input bool) *object.Boolean {
 	return FALSE
 }
 
-// func newError(format string, a ...interface{}) *object.Error {
-// 	return &object.Error{Message: fmt.Sprintf(format, a...)}
-// }
+func newError(format string, a ...interface{}) *object.Error {
+	return &object.Error{Message: fmt.Sprintf(format, a...)}
+}
+
+func isError(obj object.Object) bool {
+	if obj != nil {
+		return obj.Type() == object.ERROR_OBJ
+	}
+	return false
+}
 
 func evalProgram(stmts []ast.Statement) object.Object {
 	if len(stmts) == 0 {
 		return nil
 	}
 
+	evaluated := Eval(stmts[0])
+	if evaluated.Type() == object.ERROR_OBJ {
+		return evaluated
+	}
+
 	return Eval(stmts[0])
 }
 
-func evalPrefixExpression(node *ast.PrefixExpression) object.Object {
-	right := Eval(node.Right)
-	switch node.Operator {
+func evalPrefixExpression(operator string, right object.Object) object.Object {
+	switch operator {
 	case "!":
 		return evalBangOperatorExpression(right)
 	case "-":
+		if right.Type() != object.NUMBER_OBJ {
+			return newError("Operand must be a number.")
+		}
 		return evalMinusOperatorExpression(right)
 	}
 	return nil

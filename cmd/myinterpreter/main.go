@@ -7,6 +7,7 @@ import (
 
 	"github.com/codecrafters-io/interpreter-starter-go/evaluator"
 	"github.com/codecrafters-io/interpreter-starter-go/lexer"
+	"github.com/codecrafters-io/interpreter-starter-go/object"
 	"github.com/codecrafters-io/interpreter-starter-go/parser"
 	"github.com/codecrafters-io/interpreter-starter-go/token"
 )
@@ -77,6 +78,11 @@ func evaluate(filename string, stdout, stderr io.Writer) bool {
 		io.WriteString(stdout, "\n")
 	}
 
+	if evaluated.Type() == object.ERROR_OBJ {
+		fmt.Fprintln(stderr, evaluated.Inspect())
+		return false
+	}
+
 	return true
 }
 
@@ -90,7 +96,10 @@ func run(command, filename string, stdout, stderr io.Writer) bool {
 	}
 
 	if command == "evaluate" {
-		return evaluate(filename, stdout, stderr)
+		if !evaluate(filename, stdout, stderr) {
+			os.Exit(70)
+		}
+		return true
 	}
 
 	fmt.Fprintf(stderr, "unknown command: %s\n", command)
