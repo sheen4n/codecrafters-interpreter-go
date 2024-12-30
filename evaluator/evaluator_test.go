@@ -218,6 +218,11 @@ func TestError(t *testing.T) {
 		{`-true`, "Operand must be a number."},
 		{`-false`, "Operand must be a number."},
 		{`-("foo" + "bar")	`, "Operand must be a number."},
+		{`"foo" * 42`, "Operands must be numbers."},
+		{`true / 2`, "Operands must be numbers."},
+		{`"foo" * "bar"`, "Operands must be numbers."},
+		{`("foo" * "bar")`, "Operands must be numbers."},
+		{`false / true`, "Operands must be numbers."},
 	}
 
 	for _, tt := range tests {

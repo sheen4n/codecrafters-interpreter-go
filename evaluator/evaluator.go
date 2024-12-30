@@ -28,12 +28,24 @@ func Eval(node ast.Node) object.Object {
 	case *ast.NumberLiteral:
 		return &object.Number{Value: node.Value}
 	case *ast.GroupExpression:
-		return Eval(node.Expression)
+		result := Eval(node.Expression)
+		if isError(result) {
+			return result
+		}
+		return result
 	case *ast.PrefixExpression:
 		right := Eval(node.Right)
 		return evalPrefixExpression(node.Operator, right)
 	case *ast.InfixExpression:
-		return evalInfixExpression(node)
+		left := Eval(node.Left)
+		if isError(left) {
+			return left
+		}
+		right := Eval(node.Right)
+		if isError(right) {
+			return right
+		}
+		return evalInfixExpression(node.Operator, left, right)
 	}
 	return nil
 }
@@ -102,30 +114,28 @@ func evalMinusOperatorExpression(right object.Object) object.Object {
 	return &object.Number{Value: -value}
 }
 
-func evalInfixExpression(node *ast.InfixExpression) object.Object {
-	left := Eval(node.Left)
-	right := Eval(node.Right)
+func evalInfixExpression(operator string, left, right object.Object) object.Object {
 
 	if left.Type() == object.NUMBER_OBJ && right.Type() == object.NUMBER_OBJ {
-		return evalNumberInfixExpression(node, left, right)
+		return evalNumberInfixExpression(operator, left, right)
 	}
 
 	if left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ {
-		return evalStringInfixExpression(node, left, right)
+		return evalStringInfixExpression(operator, left, right)
 	}
 
-	if (node.Operator == "==" || node.Operator == "!=") && left.Type() != right.Type() {
+	if (operator == "==" || operator == "!=") && left.Type() != right.Type() {
 		return FALSE
 	}
 
-	return nil
+	return newError("Operands must be numbers.")
 }
 
-func evalNumberInfixExpression(node *ast.InfixExpression, left, right object.Object) object.Object {
+func evalNumberInfixExpression(operator string, left, right object.Object) object.Object {
 	leftValue := left.(*object.Number).Value
 	rightValue := right.(*object.Number).Value
 
-	switch node.Operator {
+	switch operator {
 	case "+":
 		return &object.Number{Value: leftValue + rightValue}
 	case "-":
@@ -150,17 +160,19 @@ func evalNumberInfixExpression(node *ast.InfixExpression, left, right object.Obj
 	return nil
 }
 
-func evalStringInfixExpression(node *ast.InfixExpression, left, right object.Object) object.Object {
+func evalStringInfixExpression(operator string, left, right object.Object) object.Object {
 	leftValue := left.(*object.String).Value
 	rightValue := right.(*object.String).Value
 
-	switch node.Operator {
+	switch operator {
 	case "+":
 		return &object.String{Value: leftValue + rightValue}
 	case "==":
 		return nativeToBoolean(leftValue == rightValue)
 	case "!=":
 		return nativeToBoolean(leftValue != rightValue)
+	case "*":
+		return newError("Operands must be numbers.")
 	}
 	return nil
 }
