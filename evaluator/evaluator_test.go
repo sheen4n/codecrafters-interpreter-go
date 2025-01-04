@@ -286,3 +286,8 @@ func TestVarStatementsError(t *testing.T) {
 	evaluated := testEval("var a = 5; b;")
 	testErrorObject(t, evaluated, "Undefined variable 'b'.")
 }
+
+func TestAssignStatements(t *testing.T) {
+	evaluated := testEval("var a = 5; a = 10; a;")
+	testNumberObject(t, evaluated, 10)
+}

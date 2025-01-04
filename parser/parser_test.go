@@ -409,3 +409,30 @@ func TestNilVarStatement(t *testing.T) {
 		t.Errorf("nilLiteral.String() not %q. got=%q", "nil", nilLiteral.String())
 	}
 }
+
+func TestAssignExpression(t *testing.T) {
+	input := `var x = 10; x = 20;`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 2 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[1].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[1] is not ast.ExpressionStatement. got=%T", program.Statements[1])
+	}
+
+	assignStmt, ok := stmt.Expression.(*ast.AssignExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.AssignExpression. got=%T", stmt.Expression)
+	}
+
+	if assignStmt.Name.String() != "x" {
+		t.Errorf("assignStmt.Name.String() not %q. got=%q", "x", assignStmt.Name.String())
+	}
+}

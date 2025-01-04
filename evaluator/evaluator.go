@@ -53,6 +53,13 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 		return &object.Print{Value: value}
+	case *ast.AssignExpression:
+		value := Eval(node.Value, env)
+		if isError(value) {
+			return value
+		}
+		env.Set(node.Name.Value, value)
+		return value
 	case *ast.Identifier:
 		obj, ok := env.Get(node.Value)
 		if !ok {

@@ -164,6 +164,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.GREATER_EQUAL, p.parseInfixExpression)
 	p.registerInfix(token.EQUAL_EQUAL, p.parseInfixExpression)
 	p.registerInfix(token.BANG_EQUAL, p.parseInfixExpression)
+	// p.registerInfix(token.EQUAL, p.parseAssignExpression)
 
 	// Read two tokens, so curToken and peekToken are both set
 	// Sets the peekToken by calling the lexer's NextToken method
@@ -334,5 +335,25 @@ func (p *Parser) parseVarStatement() *ast.VarStatement {
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
+
+	identifier := &ast.Identifier{Token: p.curToken, Value: p.curToken.Lexeme}
+
+	if p.peekTokenIs(token.EQUAL) {
+		p.nextToken()
+		return p.parseAssignExpression(identifier)
+	}
+
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Lexeme}
+}
+
+func (p *Parser) parseAssignExpression(left ast.Expression) ast.Expression {
+	expression := &ast.AssignExpression{
+		Token: p.curToken,
+		Name:  left.(*ast.Identifier),
+	}
+
+	precedence := p.curPrecedence()
+	p.nextToken()
+	expression.Value = p.parseExpression(precedence)
+	return expression
 }
