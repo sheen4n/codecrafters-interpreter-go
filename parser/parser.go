@@ -151,6 +151,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.PRINT, p.parsePrintStatement)
+	p.registerPrefix(token.IDENTIFIER, p.parseIdentifier)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -260,7 +261,9 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 func (p *Parser) parseGroupExpression() ast.Expression {
 	p.nextToken()
 	exp := p.parseExpression(LOWEST)
-	if !p.expectPeek(token.RIGHT_PAREN) {
+	if len(p.errors) == 0 && !p.expectPeek(token.RIGHT_PAREN) {
+		msg := fmt.Sprintf("[line %d] Error at '%s': Expect ')'.", p.curToken.Line, p.curToken.Lexeme)
+		p.errors = append(p.errors, msg)
 		return nil
 	}
 	return &ast.GroupExpression{Token: p.curToken, Expression: exp}
@@ -322,4 +325,8 @@ func (p *Parser) parseVarStatement() *ast.VarStatement {
 	}
 
 	return stmt
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Lexeme}
 }

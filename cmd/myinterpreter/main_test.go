@@ -224,6 +224,13 @@ func TestParse(t *testing.T) {
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`(72 + )`), 0644) },
 		},
 		{
+			name:       "parse syntax error unclosed (",
+			filename:   "unclosed_group.txt",
+			wantOutput: "",
+			wantErr:    "[line 1] Error at 'foo': Expect ')'.",
+			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`(foo`), 0644) },
+		},
+		{
 			name:       "parse no syntax error",
 			filename:   "no_syntax_error.txt",
 			wantOutput: `(!= baz hello)`,
