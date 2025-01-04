@@ -347,3 +347,34 @@ func TestMultiplePrintExpressions(t *testing.T) {
 		}
 	}
 }
+
+func TestVarStatement(t *testing.T) {
+	input := `var x = 10`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.VarStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.VarStatement. got=%T", program.Statements[0])
+	}
+
+	if stmt.Name.String() != "x" {
+		t.Errorf("stmt.Name.String() not %q. got=%q", "x", stmt.Name.String())
+	}
+
+	numberLiteral, ok := stmt.Value.(*ast.NumberLiteral)
+	if !ok {
+		t.Fatalf("stmt.Value is not *ast.NumberLiteral. got=%T", stmt.Value)
+	}
+
+	if numberLiteral.Value != 10 {
+		t.Errorf("numberLiteral.Value not %f. got=%f", 10.0, numberLiteral.Value)
+	}
+}

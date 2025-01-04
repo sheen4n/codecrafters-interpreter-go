@@ -176,7 +176,12 @@ func New(l *lexer.Lexer) *Parser {
 }
 
 func (p *Parser) parseStatement() ast.Statement {
-	return p.parseExpressmentStatement()
+	switch p.curToken.Type {
+	case token.VAR:
+		return p.parseVarStatement()
+	default:
+		return p.parseExpressmentStatement()
+	}
 }
 
 func (p *Parser) parseExpressmentStatement() *ast.ExpressionStatement {
@@ -293,4 +298,28 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 
 	expression.Right = p.parseExpression(precedence)
 	return expression
+}
+
+func (p *Parser) parseVarStatement() *ast.VarStatement {
+	stmt := &ast.VarStatement{Token: p.curToken}
+
+	if !p.expectPeek(token.IDENTIFIER) {
+		return nil
+	}
+
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Lexeme}
+
+	if !p.expectPeek(token.EQUAL) {
+		return nil
+	}
+
+	p.nextToken()
+
+	stmt.Value = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return stmt
 }
