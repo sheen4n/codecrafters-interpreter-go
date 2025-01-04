@@ -55,4 +55,4 @@ type Print struct {
 }
 
 func (p *Print) Type() ObjectType { return PRINT_OBJ }
-func (p *Print) Inspect() string  { return p.Value.Inspect() }
+func (p *Print) Inspect() string  { return "" }

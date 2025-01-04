@@ -68,6 +68,7 @@ func evaluate(filename string, stdout, stderr io.Writer) bool {
 
 	program := p.ParseProgram()
 	if !p.CheckErrors(stderr) {
+		os.Exit(65)
 		return false
 	}
 
@@ -86,25 +87,6 @@ func evaluate(filename string, stdout, stderr io.Writer) bool {
 	return true
 }
 
-func run(filename string, stdout, stderr io.Writer) bool {
-	fileContents, err := os.ReadFile(filename)
-	if err != nil {
-		fmt.Fprintf(stderr, "error reading file: %v\n", err)
-		return false
-	}
-
-	p := parser.New(lexer.New(string(fileContents)))
-
-	program := p.ParseProgram()
-	if !p.CheckErrors(stderr) {
-		return false
-	}
-
-	evaluator.Eval(program)
-
-	return true
-}
-
 func execute(command, filename string, stdout, stderr io.Writer) bool {
 	if command == "tokenize" {
 		return tokenize(filename, stdout, stderr)
@@ -114,16 +96,9 @@ func execute(command, filename string, stdout, stderr io.Writer) bool {
 		return parse(filename, stdout, stderr)
 	}
 
-	if command == "evaluate" {
+	if command == "evaluate" || command == "run" {
 		if !evaluate(filename, stdout, stderr) {
 			os.Exit(70)
-		}
-		return true
-	}
-
-	if command == "run" {
-		if !run(filename, stdout, stderr) {
-			os.Exit(65)
 		}
 		return true
 	}
@@ -138,8 +113,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	ok := execute(os.Args[1], os.Args[2], os.Stdout, os.Stderr)
-	if !ok {
+	if !execute(os.Args[1], os.Args[2], os.Stdout, os.Stderr) {
 		os.Exit(65)
 	}
 	os.Exit(0)
