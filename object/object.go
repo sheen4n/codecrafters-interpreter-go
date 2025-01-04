@@ -10,6 +10,7 @@ const (
 	STRING_OBJ  ObjectType = "STRING"
 	NUMBER_OBJ  ObjectType = "NUMBER"
 	ERROR_OBJ   ObjectType = "ERROR"
+	BUILTIN_OBJ ObjectType = "BUILTIN"
 )
 
 type Object interface {

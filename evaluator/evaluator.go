@@ -46,6 +46,15 @@ func Eval(node ast.Node) object.Object {
 			return right
 		}
 		return evalInfixExpression(node.Operator, left, right)
+	case *ast.PrintExpression:
+		value := Eval(node.Expression)
+		if isError(value) {
+			return value
+		}
+
+		fmt.Println(value.Inspect())
+
+		return NIL
 	}
 	return nil
 }
@@ -78,7 +87,7 @@ func evalProgram(stmts []ast.Statement) object.Object {
 		return evaluated
 	}
 
-	return Eval(stmts[0])
+	return evaluated
 }
 
 func evalPrefixExpression(operator string, right object.Object) object.Object {

@@ -150,6 +150,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.LEFT_PAREN, p.parseGroupExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
+	p.registerPrefix(token.PRINT, p.parsePrintStatement)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -268,6 +269,16 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 
 	p.nextToken()
 	expression.Right = p.parseExpression(PREFIX)
+	return expression
+}
+
+func (p *Parser) parsePrintStatement() ast.Expression {
+	expression := &ast.PrintExpression{
+		Token: p.curToken,
+	}
+
+	p.nextToken()
+	expression.Expression = p.parseExpression(LOWEST)
 	return expression
 }
 

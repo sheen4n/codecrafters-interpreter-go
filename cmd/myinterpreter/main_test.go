@@ -111,7 +111,7 @@ EOF  null
 	}
 }
 
-func TestRunUnknownCommand(t *testing.T) {
+func TestExecuteUnknownCommand(t *testing.T) {
 	// Arrange
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
@@ -119,7 +119,7 @@ func TestRunUnknownCommand(t *testing.T) {
 	filename := "test.txt"
 
 	// Act
-	ok := run(command, filename, stdout, stderr)
+	ok := execute(command, filename, stdout, stderr)
 
 	// Assert
 	expectedError := "unknown command: unknown\n"

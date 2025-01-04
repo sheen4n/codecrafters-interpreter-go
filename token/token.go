@@ -82,13 +82,14 @@ var keywords = map[string]TokenType{
 	"while":  WHILE,
 }
 
-func New(tokenType TokenType, ch, literal string, line int) Token {
-	return Token{Type: tokenType, Lexeme: ch, Line: line, Literal: literal}
+func New(tokenType TokenType, lexeme, literal string, line int) Token {
+	return Token{Type: tokenType, Lexeme: lexeme, Line: line, Literal: literal}
 }
 
 func LookupIdent(ident string) TokenType {
 	if tok, ok := keywords[ident]; ok {
 		return tok
 	}
+
 	return IDENTIFIER
 }

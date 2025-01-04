@@ -148,3 +148,18 @@ func (oe *InfixExpression) String() string {
 
 	return out.String()
 }
+
+type PrintExpression struct {
+	Token      token.Token // the token.PRINT token
+	Expression Expression
+}
+
+func (ps *PrintExpression) expressionNode()      {}
+func (ps *PrintExpression) TokenLiteral() string { return ps.Token.Literal }
+func (ps *PrintExpression) String() string {
+	var out bytes.Buffer
+	out.WriteString("(print ")
+	out.WriteString(ps.Expression.String())
+	out.WriteString(")")
+	return out.String()
+}

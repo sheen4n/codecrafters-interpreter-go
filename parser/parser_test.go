@@ -291,3 +291,30 @@ func TestSyntaxError(t *testing.T) {
 		}
 	}
 }
+
+func TestPrintExpression(t *testing.T) {
+	input := `print "hello world"`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	println, ok := stmt.Expression.(*ast.PrintExpression)
+	if !ok {
+		t.Fatalf("exp not *ast.PrintExpression. got=%T", stmt.Expression)
+	}
+
+	if println.String() != "(print hello world)" {
+		t.Errorf("println.String() not %q. got=%q", "(print hello world)", println.String())
+	}
+}

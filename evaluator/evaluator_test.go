@@ -230,3 +230,8 @@ func TestError(t *testing.T) {
 		testErrorObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestPrintExpression(t *testing.T) {
+	evaluated := testEval("print true")
+	testNilObject(t, evaluated)
+}

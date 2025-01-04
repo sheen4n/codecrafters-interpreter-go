@@ -86,7 +86,26 @@ func evaluate(filename string, stdout, stderr io.Writer) bool {
 	return true
 }
 
-func run(command, filename string, stdout, stderr io.Writer) bool {
+func run(filename string, stdout, stderr io.Writer) bool {
+	fileContents, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Fprintf(stderr, "error reading file: %v\n", err)
+		return false
+	}
+
+	p := parser.New(lexer.New(string(fileContents)))
+
+	program := p.ParseProgram()
+	if !p.CheckErrors(stderr) {
+		return false
+	}
+
+	evaluator.Eval(program)
+
+	return true
+}
+
+func execute(command, filename string, stdout, stderr io.Writer) bool {
 	if command == "tokenize" {
 		return tokenize(filename, stdout, stderr)
 	}
@@ -102,6 +121,13 @@ func run(command, filename string, stdout, stderr io.Writer) bool {
 		return true
 	}
 
+	if command == "run" {
+		if !run(filename, stdout, stderr) {
+			os.Exit(65)
+		}
+		return true
+	}
+
 	fmt.Fprintf(stderr, "unknown command: %s\n", command)
 	return false
 }
@@ -112,7 +138,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	ok := run(os.Args[1], os.Args[2], os.Stdout, os.Stderr)
+	ok := execute(os.Args[1], os.Args[2], os.Stdout, os.Stderr)
 	if !ok {
 		os.Exit(65)
 	}
