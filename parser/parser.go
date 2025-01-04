@@ -241,7 +241,7 @@ func (p *Parser) parseBoolean() ast.Expression {
 }
 
 func (p *Parser) parseNil() ast.Expression {
-	return &ast.Nil{Token: p.curToken}
+	return &ast.Nil{}
 }
 
 func (p *Parser) parseNumberLiteral() ast.Expression {
@@ -311,6 +311,12 @@ func (p *Parser) parseVarStatement() *ast.VarStatement {
 	}
 
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Lexeme}
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		stmt.Value = &ast.Nil{}
+		p.nextToken()
+		return stmt
+	}
 
 	if !p.expectPeek(token.EQUAL) {
 		return nil

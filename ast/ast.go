@@ -74,12 +74,11 @@ func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
 func (b *Boolean) String() string       { return b.Token.Lexeme }
 
 type Nil struct {
-	Token token.Token
 }
 
 func (n *Nil) expressionNode()      {}
-func (n *Nil) TokenLiteral() string { return n.Token.Literal }
-func (n *Nil) String() string       { return n.Token.Lexeme }
+func (n *Nil) TokenLiteral() string { return "nil" }
+func (n *Nil) String() string       { return "nil" }
 
 type NumberLiteral struct {
 	Token token.Token

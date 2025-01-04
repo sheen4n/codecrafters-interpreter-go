@@ -284,5 +284,5 @@ func TestVarStatements(t *testing.T) {
 
 func TestVarStatementsError(t *testing.T) {
 	evaluated := testEval("var a = 5; b;")
-	testErrorObject(t, evaluated, "identifier not found: b")
+	testErrorObject(t, evaluated, "Undefined variable 'b'.")
 }
