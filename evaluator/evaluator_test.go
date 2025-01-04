@@ -296,7 +296,7 @@ func TestPrintExpression(t *testing.T) {
 		var stdout, stderr bytes.Buffer
 		evaluated := testEval(tt.input, &stdout, &stderr)
 		testPrintObject(t, evaluated, tt.expected)
-		testStdout(t, stdout, tt.expected)
+		testStdout(t, stdout, tt.expected+"\n")
 	}
 }
 
@@ -337,5 +337,26 @@ func TestBlockStatement(t *testing.T) {
 	if evaluated != nil {
 		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
 	}
-	testStdout(t, stdout, "10")
+	testStdout(t, stdout, "10\n")
+}
+
+func TestBlockStatementWithScope(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval(
+		`
+		{
+			var hello = "before";
+			{
+				var hello = "after";
+				print hello;
+			}
+			print hello;
+		}
+		`,
+		&stdout, &stderr,
+	)
+	if evaluated != nil {
+		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
+	}
+	testStdout(t, stdout, "after\nbefore\n")
 }

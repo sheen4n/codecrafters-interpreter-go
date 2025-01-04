@@ -28,7 +28,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.Program:
 		return e.evalProgram(node.Statements, env)
 	case *ast.BlockStatement:
-		e.evalProgram(node.Statements, env)
+		enclosedEnv := object.NewEnclosedEnvironment(env)
+		e.evalProgram(node.Statements, enclosedEnv)
 		return nil
 	case *ast.ExpressionStatement:
 		return e.Eval(node.Expression, env)
@@ -71,7 +72,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(value) {
 			return value
 		}
-		env.Set(node.Name.Value, value)
+		env.Assign(node.Name.Value, value)
 		return value
 	case *ast.Identifier:
 		obj, ok := env.Get(node.Value)
@@ -84,7 +85,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(value) {
 			return value
 		}
-		env.Set(node.Name.Value, value)
+		env.Define(node.Name.Value, value)
 		return nil
 
 	}
