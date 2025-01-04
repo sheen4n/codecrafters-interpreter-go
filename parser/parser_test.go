@@ -436,3 +436,42 @@ func TestAssignExpression(t *testing.T) {
 		t.Errorf("assignStmt.Name.String() not %q. got=%q", "x", assignStmt.Name.String())
 	}
 }
+
+func TestBlockStatement(t *testing.T) {
+	input := `{ var x = 10; print x; }`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	block, ok := program.Statements[0].(*ast.BlockStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.BlockStatement. got=%T", program.Statements[0])
+	}
+
+	if len(block.Statements) != 2 {
+		t.Fatalf("block statement has not enough statements. got=%d", len(block.Statements))
+	}
+}
+
+func TestBlockStatementError(t *testing.T) {
+	input := `{ var x = 10; `
+
+	l := lexer.New(input)
+	p := New(l)
+	p.ParseProgram()
+
+	errors := p.Errors()
+	if len(errors) == 0 {
+		t.Errorf("expected error, got none")
+	}
+
+	if errors[0] != "[line 1] Expect '}'." {
+		t.Errorf("expected error %q, got %q", "[line 1] Expect '}'.", errors[0])
+	}
+}

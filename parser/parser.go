@@ -273,7 +273,7 @@ func (p *Parser) parseBlockStatement() ast.Statement {
 	}
 
 	if !p.curTokenIs(token.RIGHT_BRACE) {
-		p.errors = append(p.errors, fmt.Sprintf("[line %d] Error at '%s': Expect '}'.", p.curToken.Line, p.curToken.Lexeme))
+		p.errors = append(p.errors, fmt.Sprintf("[line %d] Expect '}'.", p.curToken.Line))
 		return nil
 	}
 

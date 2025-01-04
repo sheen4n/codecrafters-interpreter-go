@@ -291,3 +291,10 @@ func TestAssignStatements(t *testing.T) {
 	evaluated := testEval("var a = 5; a = 10; a;")
 	testNumberObject(t, evaluated, 10)
 }
+
+func TestBlockStatement(t *testing.T) {
+	evaluated := testEval("{ var x = 10; print x; }")
+	if evaluated != nil {
+		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
+	}
+}
