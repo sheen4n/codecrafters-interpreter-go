@@ -119,9 +119,10 @@ func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) 
 		result = e.Eval(stmt, env)
 		switch result := result.(type) {
 		case *object.Error:
+			io.WriteString(e.stderr, result.Message)
 			return result
 		case *object.Print:
-			fmt.Println(result.Value.Inspect())
+			io.WriteString(e.stdout, result.Value.Inspect())
 		}
 	}
 

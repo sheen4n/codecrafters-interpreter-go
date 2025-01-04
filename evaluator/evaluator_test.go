@@ -19,6 +19,24 @@ func testEval(input string, stdout, stderr io.Writer) object.Object {
 	return e.Eval(program, env)
 }
 
+func testStdout(t *testing.T, stdout bytes.Buffer, expected string) bool {
+	result := stdout.String()
+	if result != expected {
+		t.Errorf("expected stdout %v, got %v", expected, result)
+		return false
+	}
+	return true
+}
+
+func testStderr(t *testing.T, stderr bytes.Buffer, expected string) bool {
+	result := stderr.String()
+	if result != expected {
+		t.Errorf("expected stderr %v, got %v", expected, result)
+		return false
+	}
+	return true
+}
+
 func testBooleanObject(t *testing.T, obj object.Object, expected bool) bool {
 	result, ok := obj.(*object.Boolean)
 	if !ok {
@@ -258,6 +276,7 @@ func TestError(t *testing.T) {
 		var stdout, stderr bytes.Buffer
 		evaluated := testEval(tt.input, &stdout, &stderr)
 		testErrorObject(t, evaluated, tt.expected)
+		testStderr(t, stderr, tt.expected)
 	}
 }
 
@@ -277,6 +296,7 @@ func TestPrintExpression(t *testing.T) {
 		var stdout, stderr bytes.Buffer
 		evaluated := testEval(tt.input, &stdout, &stderr)
 		testPrintObject(t, evaluated, tt.expected)
+		testStdout(t, stdout, tt.expected)
 	}
 }
 
@@ -302,6 +322,7 @@ func TestVarStatementsError(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	evaluated := testEval("var a = 5; b;", &stdout, &stderr)
 	testErrorObject(t, evaluated, "Undefined variable 'b'.")
+	testStderr(t, stderr, "Undefined variable 'b'.")
 }
 
 func TestAssignStatements(t *testing.T) {
@@ -316,4 +337,5 @@ func TestBlockStatement(t *testing.T) {
 	if evaluated != nil {
 		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
 	}
+	testStdout(t, stdout, "10")
 }
