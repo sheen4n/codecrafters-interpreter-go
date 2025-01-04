@@ -17,6 +17,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalProgram(node.Statements, env)
+	case *ast.BlockStatement:
+		evalProgram(node.Statements, env)
+		return nil
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
 	case *ast.Boolean:

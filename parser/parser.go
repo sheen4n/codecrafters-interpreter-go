@@ -181,6 +181,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.VAR:
 		return p.parseVarStatement()
+	case token.LEFT_BRACE:
+		return p.parseBlockStatement()
 	default:
 		return p.parseExpressmentStatement()
 	}
@@ -257,6 +259,25 @@ func (p *Parser) parseNumberLiteral() ast.Expression {
 
 func (p *Parser) parseStringLiteral() ast.Expression {
 	return &ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
+}
+
+func (p *Parser) parseBlockStatement() ast.Statement {
+	block := &ast.BlockStatement{Token: p.curToken}
+
+	p.nextToken()
+
+	for !p.curTokenIs(token.RIGHT_BRACE) && !p.curTokenIs(token.EOF) {
+		stmt := p.parseStatement()
+		block.Statements = append(block.Statements, stmt)
+		p.nextToken()
+	}
+
+	if !p.curTokenIs(token.RIGHT_BRACE) {
+		p.errors = append(p.errors, fmt.Sprintf("[line %d] Error at '%s': Expect '}'.", p.curToken.Line, p.curToken.Lexeme))
+		return nil
+	}
+
+	return block
 }
 
 func (p *Parser) parseGroupExpression() ast.Expression {
