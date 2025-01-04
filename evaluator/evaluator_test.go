@@ -264,3 +264,25 @@ func TestPrintExpression(t *testing.T) {
 		testPrintObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestVarStatements(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected float64
+	}{
+		{"var a = 5; a;", 5},
+		{"var a = 5 * 5; a;", 25},
+		{"var a = 5; var b = a; b;", 5},
+		{"var a = 5; var b = a; var c = a + b + 5; c;", 15},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testNumberObject(t, evaluated, tt.expected)
+	}
+}
+
+func TestVarStatementsError(t *testing.T) {
+	evaluated := testEval("var a = 5; b;")
+	testErrorObject(t, evaluated, "identifier not found: b")
+}
