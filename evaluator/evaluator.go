@@ -52,9 +52,7 @@ func Eval(node ast.Node) object.Object {
 			return value
 		}
 
-		fmt.Println(value.Inspect())
-
-		return NIL
+		return &object.Print{Value: value}
 	}
 	return nil
 }
@@ -82,12 +80,18 @@ func evalProgram(stmts []ast.Statement) object.Object {
 		return nil
 	}
 
-	evaluated := Eval(stmts[0])
-	if evaluated.Type() == object.ERROR_OBJ {
-		return evaluated
+	var result object.Object
+	for _, stmt := range stmts {
+		result = Eval(stmt)
+		switch result := result.(type) {
+		case *object.Error:
+			return result
+		case *object.Print:
+			fmt.Println(result.Value.Inspect())
+		}
 	}
 
-	return evaluated
+	return result
 }
 
 func evalPrefixExpression(operator string, right object.Object) object.Object {
@@ -133,8 +137,16 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 		return evalStringInfixExpression(operator, left, right)
 	}
 
-	if (operator == "==" || operator == "!=") && left.Type() != right.Type() {
-		return FALSE
+	if operator == "==" || operator == "!=" {
+		if left.Type() != right.Type() {
+			return FALSE
+		}
+
+		if operator == "==" {
+			return nativeToBoolean(left.Inspect() == right.Inspect())
+		}
+
+		return nativeToBoolean(left.Inspect() != right.Inspect())
 	}
 
 	return newError("Operands must be numbers.")

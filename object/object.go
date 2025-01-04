@@ -11,6 +11,7 @@ const (
 	NUMBER_OBJ  ObjectType = "NUMBER"
 	ERROR_OBJ   ObjectType = "ERROR"
 	BUILTIN_OBJ ObjectType = "BUILTIN"
+	PRINT_OBJ   ObjectType = "PRINT"
 )
 
 type Object interface {
@@ -48,3 +49,10 @@ type Error struct{ Message string }
 
 func (e *Error) Type() ObjectType { return ERROR_OBJ }
 func (e *Error) Inspect() string  { return e.Message }
+
+type Print struct {
+	Value Object
+}
+
+func (p *Print) Type() ObjectType { return PRINT_OBJ }
+func (p *Print) Inspect() string  { return p.Value.Inspect() }

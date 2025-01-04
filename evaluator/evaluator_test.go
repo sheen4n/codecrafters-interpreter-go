@@ -37,6 +37,19 @@ func testNilObject(t *testing.T, obj object.Object) bool {
 	return true
 }
 
+func testPrintObject(t *testing.T, obj object.Object, expected string) bool {
+	result, ok := obj.(*object.Print)
+	if !ok {
+		t.Errorf("object is not Print. got=%T (%+v)", obj, obj)
+		return false
+	}
+	if result.Value.Inspect() != expected {
+		t.Errorf("object has wrong value. got=%q, want=%q", result.Value.Inspect(), expected)
+		return false
+	}
+	return true
+}
+
 func testStringObject(t *testing.T, obj object.Object, expected string) bool {
 	result, ok := obj.(*object.String)
 	if !ok {
@@ -201,6 +214,8 @@ func TestEqualityOperators(t *testing.T) {
 		{"61 == 61", true},
 		{"61 != 61", false},
 		{`61 == "61"`, false},
+		{`false == true`, false},
+		{`false != true`, true},
 	}
 
 	for _, tt := range tests {
@@ -233,5 +248,5 @@ func TestError(t *testing.T) {
 
 func TestPrintExpression(t *testing.T) {
 	evaluated := testEval("print true")
-	testNilObject(t, evaluated)
+	testPrintObject(t, evaluated, "true")
 }
