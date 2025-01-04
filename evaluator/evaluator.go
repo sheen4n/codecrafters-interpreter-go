@@ -56,7 +56,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.Identifier:
 		obj, ok := env.Get(node.Value)
 		if !ok {
-			return newError("identifier not found: %s", node.Value)
+			return newError("Undefined variable '%s'.", node.Value)
 		}
 		return obj
 	case *ast.VarStatement:
