@@ -81,7 +81,6 @@ func evaluate(filename string, stdout, stderr io.Writer) bool {
 		}
 		io.WriteString(stdout, evaluated.Inspect())
 		io.WriteString(stdout, "\n")
-
 	}
 
 	return true

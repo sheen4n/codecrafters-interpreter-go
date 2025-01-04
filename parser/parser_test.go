@@ -318,3 +318,32 @@ func TestPrintExpression(t *testing.T) {
 		t.Errorf("println.String() not %q. got=%q", "(print hello world)", println.String())
 	}
 }
+
+func TestMultiplePrintExpressions(t *testing.T) {
+	input := `print "hello world"; print "hello world"`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 2 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	for _, stmt := range program.Statements {
+		println, ok := stmt.(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("stmt not *ast.PrintExpression. got=%T", stmt)
+		}
+
+		printExpression, ok := println.Expression.(*ast.PrintExpression)
+		if !ok {
+			t.Fatalf("stmt not *ast.PrintExpression. got=%T", stmt)
+		}
+
+		if printExpression.String() != "(print hello world)" {
+			t.Errorf("println.String() not %q. got=%q", "(print hello world)", println.String())
+		}
+	}
+}

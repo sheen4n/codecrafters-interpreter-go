@@ -247,6 +247,19 @@ func TestError(t *testing.T) {
 }
 
 func TestPrintExpression(t *testing.T) {
-	evaluated := testEval("print true")
-	testPrintObject(t, evaluated, "true")
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`print true`, "true"},
+		{`print false`, "false"},
+		{`print "hello world"`, "hello world"},
+		{`print 10.4`, "10.4"},
+		{`print (10.4 + 10.4)`, "20.8"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testPrintObject(t, evaluated, tt.expected)
+	}
 }
