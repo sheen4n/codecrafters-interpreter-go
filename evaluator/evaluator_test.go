@@ -1,6 +1,8 @@
 package evaluator
 
 import (
+	"bytes"
+	"io"
 	"testing"
 
 	"github.com/codecrafters-io/interpreter-starter-go/lexer"
@@ -8,12 +10,13 @@ import (
 	"github.com/codecrafters-io/interpreter-starter-go/parser"
 )
 
-func testEval(input string) object.Object {
+func testEval(input string, stdout, stderr io.Writer) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
 	program := p.ParseProgram()
 	env := object.NewEnvironment()
-	return Eval(program, env)
+	e := NewEvaluator(stdout, stderr)
+	return e.Eval(program, env)
 }
 
 func testBooleanObject(t *testing.T, obj object.Object, expected bool) bool {
@@ -98,20 +101,23 @@ func TestEvalBooleanExpression(t *testing.T) {
 		{"true", true},
 		{"false", false},
 	}
+	var stdout, stderr bytes.Buffer
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
+		evaluated := testEval(tt.input, &stdout, &stderr)
 		testBooleanObject(t, evaluated, tt.expected)
 	}
 }
 
 func TestEvalNil(t *testing.T) {
-	evaluated := testEval("nil")
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval("nil", &stdout, &stderr)
 	testNilObject(t, evaluated)
 }
 
 func TestEvalString(t *testing.T) {
-	evaluated := testEval(`"hello world!"`)
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval(`"hello world!"`, &stdout, &stderr)
 	testStringObject(t, evaluated, "hello world!")
 }
 
@@ -126,39 +132,42 @@ func TestEvalNumber(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
+		var stdout, stderr bytes.Buffer
+		evaluated := testEval(tt.input, &stdout, &stderr)
 		testNumberObject(t, evaluated, tt.expected)
 	}
 }
 
 func TestEvalGroupExpression(t *testing.T) {
-	evaluated := testEval("(10.4)")
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval("(10.4)", &stdout, &stderr)
 	testNumberObject(t, evaluated, 10.4)
 
-	evaluated = testEval("(true)")
+	evaluated = testEval("(true)", &stdout, &stderr)
 	testBooleanObject(t, evaluated, true)
 
-	evaluated = testEval("(nil)")
+	evaluated = testEval("(nil)", &stdout, &stderr)
 	testNilObject(t, evaluated)
 
-	evaluated = testEval(`("hello world!")`)
+	evaluated = testEval(`("hello world!")`, &stdout, &stderr)
 	testStringObject(t, evaluated, "hello world!")
 }
 
 func TestUnaryExpression(t *testing.T) {
-	evaluated := testEval("-10.4")
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval("-10.4", &stdout, &stderr)
 	testNumberObject(t, evaluated, -10.4)
 
-	evaluated = testEval("!true")
+	evaluated = testEval("!true", &stdout, &stderr)
 	testBooleanObject(t, evaluated, false)
 
-	evaluated = testEval("!false")
+	evaluated = testEval("!false", &stdout, &stderr)
 	testBooleanObject(t, evaluated, true)
 
-	evaluated = testEval("!nil")
+	evaluated = testEval("!nil", &stdout, &stderr)
 	testBooleanObject(t, evaluated, true)
 
-	evaluated = testEval("-(-10.4)")
+	evaluated = testEval("-(-10.4)", &stdout, &stderr)
 	testNumberObject(t, evaluated, 10.4)
 }
 
@@ -176,13 +185,15 @@ func TestEvaluateArithmeticExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
+		var stdout, stderr bytes.Buffer
+		evaluated := testEval(tt.input, &stdout, &stderr)
 		testNumberObject(t, evaluated, tt.expected)
 	}
 }
 
 func TestStringConcatenation(t *testing.T) {
-	evaluated := testEval(`"hello" + " " + "world"`)
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval(`"hello" + " " + "world"`, &stdout, &stderr)
 	testStringObject(t, evaluated, "hello world")
 }
 
@@ -198,7 +209,8 @@ func TestRelationalOperators(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
+		var stdout, stderr bytes.Buffer
+		evaluated := testEval(tt.input, &stdout, &stderr)
 		testBooleanObject(t, evaluated, tt.expected)
 	}
 }
@@ -220,7 +232,8 @@ func TestEqualityOperators(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
+		var stdout, stderr bytes.Buffer
+		evaluated := testEval(tt.input, &stdout, &stderr)
 		testBooleanObject(t, evaluated, tt.expected)
 	}
 }
@@ -242,7 +255,8 @@ func TestError(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
+		var stdout, stderr bytes.Buffer
+		evaluated := testEval(tt.input, &stdout, &stderr)
 		testErrorObject(t, evaluated, tt.expected)
 	}
 }
@@ -260,7 +274,8 @@ func TestPrintExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
+		var stdout, stderr bytes.Buffer
+		evaluated := testEval(tt.input, &stdout, &stderr)
 		testPrintObject(t, evaluated, tt.expected)
 	}
 }
@@ -277,23 +292,27 @@ func TestVarStatements(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
+		var stdout, stderr bytes.Buffer
+		evaluated := testEval(tt.input, &stdout, &stderr)
 		testNumberObject(t, evaluated, tt.expected)
 	}
 }
 
 func TestVarStatementsError(t *testing.T) {
-	evaluated := testEval("var a = 5; b;")
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval("var a = 5; b;", &stdout, &stderr)
 	testErrorObject(t, evaluated, "Undefined variable 'b'.")
 }
 
 func TestAssignStatements(t *testing.T) {
-	evaluated := testEval("var a = 5; a = 10; a;")
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval("var a = 5; a = 10; a;", &stdout, &stderr)
 	testNumberObject(t, evaluated, 10)
 }
 
 func TestBlockStatement(t *testing.T) {
-	evaluated := testEval("{ var x = 10; print x; }")
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval("{ var x = 10; print x; }", &stdout, &stderr)
 	if evaluated != nil {
 		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
 	}

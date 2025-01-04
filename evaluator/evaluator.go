@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/codecrafters-io/interpreter-starter-go/ast"
 	"github.com/codecrafters-io/interpreter-starter-go/object"
@@ -13,15 +14,24 @@ var (
 	FALSE = &object.Boolean{Value: false}
 )
 
-func Eval(node ast.Node, env *object.Environment) object.Object {
+type Evaluator struct {
+	stdout io.Writer
+	stderr io.Writer
+}
+
+func NewEvaluator(stdout, stderr io.Writer) *Evaluator {
+	return &Evaluator{stdout: stdout, stderr: stderr}
+}
+
+func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalProgram(node.Statements, env)
+		return e.evalProgram(node.Statements, env)
 	case *ast.BlockStatement:
-		evalProgram(node.Statements, env)
+		e.evalProgram(node.Statements, env)
 		return nil
 	case *ast.ExpressionStatement:
-		return Eval(node.Expression, env)
+		return e.Eval(node.Expression, env)
 	case *ast.Boolean:
 		return nativeToBoolean(node.Value)
 	case *ast.Nil:
@@ -31,33 +41,33 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.NumberLiteral:
 		return &object.Number{Value: node.Value}
 	case *ast.GroupExpression:
-		result := Eval(node.Expression, env)
+		result := e.Eval(node.Expression, env)
 		if isError(result) {
 			return result
 		}
 		return result
 	case *ast.PrefixExpression:
-		right := Eval(node.Right, env)
+		right := e.Eval(node.Right, env)
 		return evalPrefixExpression(node.Operator, right)
 	case *ast.InfixExpression:
-		left := Eval(node.Left, env)
+		left := e.Eval(node.Left, env)
 		if isError(left) {
 			return left
 		}
-		right := Eval(node.Right, env)
+		right := e.Eval(node.Right, env)
 		if isError(right) {
 			return right
 		}
 		return evalInfixExpression(node.Operator, left, right)
 	case *ast.PrintExpression:
-		value := Eval(node.Expression, env)
+		value := e.Eval(node.Expression, env)
 		if isError(value) {
 			return value
 		}
 
 		return &object.Print{Value: value}
 	case *ast.AssignExpression:
-		value := Eval(node.Value, env)
+		value := e.Eval(node.Value, env)
 		if isError(value) {
 			return value
 		}
@@ -70,7 +80,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		return obj
 	case *ast.VarStatement:
-		value := Eval(node.Value, env)
+		value := e.Eval(node.Value, env)
 		if isError(value) {
 			return value
 		}
@@ -99,14 +109,14 @@ func isError(obj object.Object) bool {
 	return false
 }
 
-func evalProgram(stmts []ast.Statement, env *object.Environment) object.Object {
+func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) object.Object {
 	if len(stmts) == 0 {
 		return nil
 	}
 
 	var result object.Object
 	for _, stmt := range stmts {
-		result = Eval(stmt, env)
+		result = e.Eval(stmt, env)
 		switch result := result.(type) {
 		case *object.Error:
 			return result
