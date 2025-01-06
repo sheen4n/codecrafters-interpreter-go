@@ -107,7 +107,14 @@ func (p *Parser) ParseProgram() *ast.Program {
 	for !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		program.Statements = append(program.Statements, stmt)
-		p.nextToken()
+
+		if p.peekTokenIs(token.EOF) {
+			break
+		}
+
+		if p.curTokenIs(token.SEMICOLON) {
+			p.nextToken()
+		}
 	}
 
 	return program
@@ -183,6 +190,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseVarStatement()
 	case token.LEFT_BRACE:
 		return p.parseBlockStatement()
+	case token.IF:
+		return p.parseIfStatement()
 	default:
 		return p.parseExpressmentStatement()
 	}
@@ -196,6 +205,30 @@ func (p *Parser) parseExpressmentStatement() *ast.ExpressionStatement {
 	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
+	return stmt
+}
+
+func (p *Parser) parseIfStatement() *ast.IfStatement {
+	stmt := &ast.IfStatement{Token: p.curToken}
+
+	if !p.expectPeek(token.LEFT_PAREN) {
+		return nil
+	}
+
+	p.nextToken()
+	stmt.Condition = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RIGHT_PAREN) {
+		return nil
+	}
+	p.nextToken()
+
+	if p.curTokenIs(token.LEFT_BRACE) {
+		stmt.Consequence = p.parseBlockStatement()
+	} else {
+		stmt.Consequence = p.parseExpressmentStatement()
+	}
+
 	return stmt
 }
 
@@ -261,7 +294,7 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 	return &ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
 }
 
-func (p *Parser) parseBlockStatement() ast.Statement {
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	block := &ast.BlockStatement{Token: p.curToken}
 
 	p.nextToken()
@@ -269,13 +302,17 @@ func (p *Parser) parseBlockStatement() ast.Statement {
 	for !p.curTokenIs(token.RIGHT_BRACE) && !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		block.Statements = append(block.Statements, stmt)
-		p.nextToken()
+		if p.curTokenIs(token.SEMICOLON) {
+			p.nextToken()
+		}
 	}
 
 	if !p.curTokenIs(token.RIGHT_BRACE) {
 		p.errors = append(p.errors, fmt.Sprintf("[line %d] Expect '}'.", p.curToken.Line))
 		return nil
 	}
+
+	p.nextToken()
 
 	return block
 }

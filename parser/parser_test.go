@@ -175,8 +175,8 @@ func TestUnaryExpression(t *testing.T) {
 		expected string
 	}{
 		{"-true", "(- true)"},
-		// {"-42.47", "(- 42.47)"},
-		// {"!true", "(! true)"},
+		{"-42.47", "(- 42.47)"},
+		{"!true", "(! true)"},
 	}
 
 	for _, tt := range tests {
@@ -473,5 +473,111 @@ func TestBlockStatementError(t *testing.T) {
 
 	if errors[0] != "[line 1] Expect '}'." {
 		t.Errorf("expected error %q, got %q", "[line 1] Expect '}'.", errors[0])
+	}
+}
+
+func TestIfStatement(t *testing.T) {
+	input := `if (true) print "bar";`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.IfStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.IfStatement. got=%T", program.Statements[0])
+	}
+
+	condition, ok := stmt.Condition.(*ast.Boolean)
+	if !ok {
+		t.Fatalf("stmt.Condition is not *ast.Boolean. got=%T", stmt.Condition)
+	}
+
+	if condition.Value != true {
+		t.Errorf("condition.Value not %t. got=%t", true, condition.Value)
+	}
+
+	if stmt.Consequence.String() != "(print bar)" {
+		t.Errorf("stmt.Consequence.String() not %q. got=%q", "(print bar)", stmt.Consequence.String())
+	}
+}
+
+func TestIfBlockStatement(t *testing.T) {
+	input := `if (false) {
+  print "block body";
+}`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.IfStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.IfStatement. got=%T", program.Statements[0])
+	}
+
+	condition, ok := stmt.Condition.(*ast.Boolean)
+	if !ok {
+		t.Fatalf("stmt.Condition is not *ast.Boolean. got=%T", stmt.Condition)
+	}
+
+	if condition.Value != false {
+		t.Errorf("condition.Value not %t. got=%t", false, condition.Value)
+	}
+
+	if stmt.Consequence.String() != "{(print block body)}" {
+		t.Errorf("stmt.Consequence.String() not %q. got=%q", "(print block body)", stmt.Consequence.String())
+	}
+}
+
+func TestMultipleIfStatements(t *testing.T) {
+	input := `
+				if (true) {  }
+				if (false) {  }`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 2 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	for _, stmt := range program.Statements {
+		if _, ok := stmt.(*ast.IfStatement); !ok {
+			t.Fatalf("stmt not *ast.IfStatement. got=%T", stmt)
+		}
+	}
+}
+
+func TestSemicolonAtEndOfStatements(t *testing.T) {
+	input := `
+	var hello = (65 * 53) - 24;
+{
+    var foo = "baz" + "10";
+    print foo;
+}
+print hello;
+	
+	`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 3 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
 	}
 }

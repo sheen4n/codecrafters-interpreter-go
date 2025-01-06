@@ -73,9 +73,29 @@ func (bs *BlockStatement) statementNode()       {}
 func (bs *BlockStatement) TokenLiteral() string { return bs.Token.Literal }
 func (bs *BlockStatement) String() string {
 	var out bytes.Buffer
+	out.WriteString("{")
 	for _, s := range bs.Statements {
 		out.WriteString(s.String())
 	}
+	out.WriteString("}")
+	return out.String()
+}
+
+type IfStatement struct {
+	Token       token.Token // the IF token
+	Condition   Expression
+	Consequence Statement
+	Alternative Statement
+}
+
+func (is *IfStatement) statementNode()       {}
+func (is *IfStatement) TokenLiteral() string { return is.Token.Literal }
+func (is *IfStatement) String() string {
+	var out bytes.Buffer
+	out.WriteString("if ")
+	out.WriteString(is.Condition.String())
+	out.WriteString(" ")
+	out.WriteString(is.Consequence.String())
 	return out.String()
 }
 

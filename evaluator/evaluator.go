@@ -87,9 +87,24 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		env.Define(node.Name.Value, value)
 		return nil
-
+	case *ast.IfStatement:
+		condition := e.Eval(node.Condition, env)
+		if isError(condition) {
+			return condition
+		}
+		if isTruthy(condition) {
+			return e.Eval(node.Consequence, env)
+		}
+		return e.Eval(node.Alternative, env)
 	}
 	return nil
+}
+
+func isTruthy(obj object.Object) bool {
+	if obj == NIL || obj == FALSE {
+		return false
+	}
+	return true
 }
 
 func nativeToBoolean(input bool) *object.Boolean {
