@@ -112,7 +112,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 			break
 		}
 
-		if p.curTokenIs(token.SEMICOLON) {
+		for p.curTokenIs(token.SEMICOLON) {
 			p.nextToken()
 		}
 	}
