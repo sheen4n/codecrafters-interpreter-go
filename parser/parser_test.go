@@ -581,3 +581,84 @@ print hello;
 		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
 	}
 }
+
+func TestIfElseStatement(t *testing.T) {
+	input := `if (true) { print "foo"; } else { print "bar"; }`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.IfStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.IfStatement. got=%T", program.Statements[0])
+	}
+
+	if stmt.Condition.String() != "true" {
+		t.Errorf("stmt.Condition.String() not %q. got=%q", "true", stmt.Condition.String())
+	}
+
+	if stmt.Consequence.String() != "{(print foo)}" {
+		t.Errorf("stmt.Consequence.String() not %q. got=%q", "{(print foo)}", stmt.Consequence.String())
+	}
+
+	if stmt.Alternative.String() != "{(print bar)}" {
+		t.Errorf("stmt.Alternative.String() not %q. got=%q", "{(print bar)}", stmt.Alternative.String())
+	}
+}
+
+func TestIfElseStatementWithSemicolon(t *testing.T) {
+	input := `if (false) { print "if block"; } else print "else statement";
+	if (false) print "if statement"; else {
+  	print "else block";
+	}
+	`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 2 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.IfStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.IfStatement. got=%T", program.Statements[0])
+	}
+
+	if stmt.Condition.String() != "false" {
+		t.Errorf("stmt.Condition.String() not %q. got=%q", "false", stmt.Condition.String())
+	}
+
+	if stmt.Consequence.String() != "{(print if block)}" {
+		t.Errorf("stmt.Consequence.String() not %q. got=%q", "{(print if block)}", stmt.Consequence.String())
+	}
+
+	if stmt.Alternative.String() != "(print else statement)" {
+		t.Errorf("stmt.Alternative.String() not %q. got=%q", "(print else statement)", stmt.Alternative.String())
+	}
+
+	stmt2, ok := program.Statements[1].(*ast.IfStatement)
+	if !ok {
+		t.Fatalf("program.Statements[1] is not ast.IfStatement. got=%T", program.Statements[1])
+	}
+
+	if stmt2.Condition.String() != "false" {
+		t.Errorf("stmt2.Condition.String() not %q. got=%q", "false", stmt2.Condition.String())
+	}
+
+	if stmt2.Consequence.String() != "(print if statement)" {
+		t.Errorf("stmt2.Consequence.String() not %q. got=%q", "(print if statement)", stmt2.Consequence.String())
+	}
+
+	if stmt2.Alternative.String() != "{(print else block)}" {
+		t.Errorf("stmt2.Alternative.String() not %q. got=%q", "{(print else block)}", stmt2.Alternative.String())
+	}
+}

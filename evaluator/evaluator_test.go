@@ -409,3 +409,43 @@ func TestIfCondition(t *testing.T) {
 		testStdout(t, stdout, tt.expected)
 	}
 }
+
+func TestIfElseCondition(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`if (true) print "if branch"; else print "else branch";`, "if branch\n"},
+		{`
+						var age = 21;
+						if (age > 18) print "adult"; else print "child";`, "adult\n"},
+		{`if (false) { print "if block"; } else print "else statement";
+	if (false) print "if statement"; else {
+  	print "else block";
+	}`, "else statement\nelse block\n"},
+		{
+			`var celsius = 67;
+		var fahrenheit = 0;
+		var isHot = false;
+
+		{
+		  fahrenheit = celsius * 9 / 5 + 32;
+		  print celsius; print fahrenheit;
+
+		  if (celsius > 30) {
+		    isHot = true;
+		    print "It's a hot day. Stay hydrated!";
+		  } else {
+		    print "It's cold today. Wear a jacket!";
+		  }
+
+		  if (isHot) { print "Remember to use sunscreen!"; }
+				}`, "67\n152.6\nIt's a hot day. Stay hydrated!\nRemember to use sunscreen!\n"},
+	}
+
+	for _, tt := range tests {
+		var stdout, stderr bytes.Buffer
+		testEval(t, tt.input, &stdout, &stderr)
+		testStdout(t, stdout, tt.expected)
+	}
+}

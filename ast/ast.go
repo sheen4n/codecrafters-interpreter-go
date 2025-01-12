@@ -96,6 +96,8 @@ func (is *IfStatement) String() string {
 	out.WriteString(is.Condition.String())
 	out.WriteString(" ")
 	out.WriteString(is.Consequence.String())
+	out.WriteString(" else ")
+	out.WriteString(is.Alternative.String())
 	return out.String()
 }
 

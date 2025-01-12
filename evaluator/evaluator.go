@@ -95,7 +95,9 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		if isTruthy(condition) {
 			return e.Eval(node.Consequence, env)
 		}
-		return e.Eval(node.Alternative, env)
+		if node.Alternative != nil {
+			return e.Eval(node.Alternative, env)
+		}
 	}
 	return nil
 }
