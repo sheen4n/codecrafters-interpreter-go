@@ -449,3 +449,47 @@ func TestIfElseCondition(t *testing.T) {
 		testStdout(t, stdout, tt.expected)
 	}
 }
+
+func TestIfElseIfStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`if (true) print "if branch"; else if (false) print "else-if branch";`, "if branch\n"},
+		{`if (true) {
+				print "hello";
+			} else if (true) print "hello";
+
+			if (true) print "hello"; else if (true) {
+				print "hello";
+			}`, "hello\nhello\n"},
+
+		{`
+			var age = 88;
+			var stage = "unknown";
+			if (age < 18) { stage = "child"; }
+			else if (age >= 18) { stage = "adult"; }
+			else if (age >= 65) { stage = "senior"; }
+			else if (age >= 100) { stage = "centenarian"; }
+			print stage;
+			`, "adult\n"},
+		{
+			`var age = 67;
+			var isAdult = age >= 18;
+			if (isAdult) { print "eligible for voting: true"; }
+			else { print "eligible for voting: false"; }
+
+			if (age < 16) { print "eligible for driving: false"; }
+			else if (age < 18) { print "eligible for driving: learner's permit"; }
+			else { print "eligible for driving: full license"; }
+
+			if (age < 21) { print "eligible for drinking (US): false"; }
+			else { print "eligible for drinking (US): true"; }`, "eligible for voting: true\neligible for driving: full license\neligible for drinking (US): true\n"},
+	}
+
+	for _, tt := range tests {
+		var stdout, stderr bytes.Buffer
+		testEval(t, tt.input, &stdout, &stderr)
+		testStdout(t, stdout, tt.expected)
+	}
+}

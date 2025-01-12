@@ -235,11 +235,17 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 	if p.curTokenIs(token.ELSE) {
 		p.nextToken()
-		if p.curTokenIs(token.LEFT_BRACE) {
-			stmt.Alternative = p.parseBlockStatement()
+
+		if p.curTokenIs(token.IF) {
+			stmt.Alternative = p.parseIfStatement()
 		} else {
-			stmt.Alternative = p.parseExpressmentStatement()
+			if p.curTokenIs(token.LEFT_BRACE) {
+				stmt.Alternative = p.parseBlockStatement()
+			} else {
+				stmt.Alternative = p.parseExpressmentStatement()
+			}
 		}
+
 	}
 
 	return stmt
