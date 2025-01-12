@@ -226,7 +226,7 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	if p.curTokenIs(token.LEFT_BRACE) {
 		stmt.Consequence = p.parseBlockStatement()
 	} else {
-		stmt.Consequence = p.parseExpressmentStatement()
+		stmt.Consequence = p.parseStatement()
 	}
 
 	if p.curTokenIs(token.SEMICOLON) {
@@ -236,14 +236,10 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	if p.curTokenIs(token.ELSE) {
 		p.nextToken()
 
-		if p.curTokenIs(token.IF) {
-			stmt.Alternative = p.parseIfStatement()
+		if p.curTokenIs(token.LEFT_BRACE) {
+			stmt.Alternative = p.parseBlockStatement()
 		} else {
-			if p.curTokenIs(token.LEFT_BRACE) {
-				stmt.Alternative = p.parseBlockStatement()
-			} else {
-				stmt.Alternative = p.parseExpressmentStatement()
-			}
+			stmt.Alternative = p.parseStatement()
 		}
 
 	}
