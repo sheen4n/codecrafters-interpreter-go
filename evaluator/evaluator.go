@@ -50,6 +50,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.PrefixExpression:
 		right := e.Eval(node.Right, env)
 		return evalPrefixExpression(node.Operator, right)
+		// TODO: fix this to not eval too early if short-circuit by OR
 	case *ast.InfixExpression:
 		left := e.Eval(node.Left, env)
 		if isError(left) {
@@ -181,6 +182,16 @@ func evalMinusOperatorExpression(right object.Object) object.Object {
 }
 
 func evalInfixExpression(operator string, left, right object.Object) object.Object {
+
+	if operator == "or" {
+		if isTruthy(left) {
+			return left
+		}
+		if isTruthy(right) {
+			return right
+		}
+		return FALSE
+	}
 
 	if left.Type() == object.NUMBER_OBJ && right.Type() == object.NUMBER_OBJ {
 		return evalNumberInfixExpression(operator, left, right)
