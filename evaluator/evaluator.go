@@ -50,8 +50,11 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.PrefixExpression:
 		right := e.Eval(node.Right, env)
 		return evalPrefixExpression(node.Operator, right)
-		// TODO: fix this to not eval too early if short-circuit by OR
 	case *ast.InfixExpression:
+		if node.Operator == "or" {
+			return e.evalOrExpression(node.Left, node.Right, env)
+		}
+
 		left := e.Eval(node.Left, env)
 		if isError(left) {
 			return left
@@ -148,6 +151,15 @@ func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) 
 	return result
 }
 
+func (e *Evaluator) evalOrExpression(left, right ast.Node, env *object.Environment) object.Object {
+	leftResult := e.Eval(left, env)
+	if isTruthy(leftResult) {
+		return leftResult
+	}
+	rightResult := e.Eval(right, env)
+	return rightResult
+}
+
 func evalPrefixExpression(operator string, right object.Object) object.Object {
 	switch operator {
 	case "!":
@@ -182,17 +194,6 @@ func evalMinusOperatorExpression(right object.Object) object.Object {
 }
 
 func evalInfixExpression(operator string, left, right object.Object) object.Object {
-
-	if operator == "or" {
-		if isTruthy(left) {
-			return left
-		}
-		if isTruthy(right) {
-			return right
-		}
-		return FALSE
-	}
-
 	if left.Type() == object.NUMBER_OBJ && right.Type() == object.NUMBER_OBJ {
 		return evalNumberInfixExpression(operator, left, right)
 	}

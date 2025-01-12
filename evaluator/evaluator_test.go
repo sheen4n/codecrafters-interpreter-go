@@ -493,3 +493,45 @@ func TestIfElseIfStatement(t *testing.T) {
 		testStdout(t, stdout, tt.expected)
 	}
 }
+
+func TestOrExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`if (false or "ok") print "baz";
+if (nil or "ok") print "baz";
+
+if (false or false) print "world";
+if (true or "world") print "world";
+
+if (24 or "bar") print "bar";
+if ("bar" or "bar") print "bar";`, "baz\nbaz\nworld\nbar\nbar\n"},
+
+		{`
+			print 41 or true;
+print false or 41;
+print false or false or true;
+
+print false or false;
+print false or false or false;
+print true or true or true or true;
+			`, "41\n41\ntrue\nfalse\nfalse\ntrue\n",
+		}, {
+			`var stage = "unknown";
+var age = 23;
+if (age < 18) { stage = "child"; }
+if (age >= 18) { stage = "adult"; }
+print stage;
+
+var isAdult = age >= 18;
+if (isAdult) { print "eligible for voting: true"; }
+if (!isAdult) { print "eligible for voting: false"; }`, "adult\neligible for voting: true\n"},
+	}
+
+	for _, tt := range tests {
+		var stdout, stderr bytes.Buffer
+		testEval(t, tt.input, &stdout, &stderr)
+		testStdout(t, stdout, tt.expected)
+	}
+}
