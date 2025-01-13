@@ -535,3 +535,29 @@ if (!isAdult) { print "eligible for voting: false"; }`, "adult\neligible for vot
 		testStdout(t, stdout, tt.expected)
 	}
 }
+
+func TestAndExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`if (false and "bad") print "foo";`, ""},
+		{`if (nil and "bad") print "foo";`, ""},
+		{`if (true and "hello") print "hello";`, "hello\n"},
+		{`if (97 and "baz") print "baz";`, "baz\n"},
+		{`if ("baz" and "baz") print "baz";`, "baz\n"},
+		{`if ("" and "bar") print "bar";`, "bar\n"},
+
+		{`print false and 1;`, "false\n"},
+		{`print true and 1;`, "1\n"},
+		{`print 23 and "hello" and false;`, "false\n"},
+		{`print 23 and true;`, "true\n"},
+		{`print 23 and "hello" and 23;`, "23\n"},
+	}
+
+	for _, tt := range tests {
+		var stdout, stderr bytes.Buffer
+		testEval(t, tt.input, &stdout, &stderr)
+		testStdout(t, stdout, tt.expected)
+	}
+}

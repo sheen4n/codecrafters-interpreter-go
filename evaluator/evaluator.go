@@ -54,6 +54,9 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		if node.Operator == "or" {
 			return e.evalOrExpression(node.Left, node.Right, env)
 		}
+		if node.Operator == "and" {
+			return e.evalAndExpression(node.Left, node.Right, env)
+		}
 
 		left := e.Eval(node.Left, env)
 		if isError(left) {
@@ -149,6 +152,14 @@ func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) 
 	}
 
 	return result
+}
+
+func (e *Evaluator) evalAndExpression(left, right ast.Node, env *object.Environment) object.Object {
+	leftResult := e.Eval(left, env)
+	if !isTruthy(leftResult) {
+		return FALSE
+	}
+	return e.Eval(right, env)
 }
 
 func (e *Evaluator) evalOrExpression(left, right ast.Node, env *object.Environment) object.Object {
