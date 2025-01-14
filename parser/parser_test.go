@@ -662,3 +662,29 @@ func TestIfElseStatementWithSemicolon(t *testing.T) {
 		t.Errorf("stmt2.Alternative.String() not %q. got=%q", "{(print else block)}", stmt2.Alternative.String())
 	}
 }
+
+func TestWhileStatement(t *testing.T) {
+	input := `while (true) print "foo";`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.WhileStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.WhileStatement. got=%T", program.Statements[0])
+	}
+
+	if stmt.Condition.String() != "true" {
+		t.Errorf("stmt.Condition.String() not %q. got=%q", "true", stmt.Condition.String())
+	}
+
+	if stmt.Consequence.String() != "(print foo)" {
+		t.Errorf("stmt.Consequence.String() not %q. got=%q", "{(print foo)}", stmt.Consequence.String())
+	}
+}

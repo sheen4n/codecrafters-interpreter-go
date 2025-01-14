@@ -561,3 +561,12 @@ func TestAndExpression(t *testing.T) {
 		testStdout(t, stdout, tt.expected)
 	}
 }
+
+func TestWhileStatement(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval(t, `var baz = 0; while (baz < 3) print baz = baz + 1;`, &stdout, &stderr)
+	if evaluated != nil {
+		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
+	}
+	testStdout(t, stdout, "1\n2\n3\n")
+}

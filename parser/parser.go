@@ -196,6 +196,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseVarStatement()
 	case token.LEFT_BRACE:
 		return p.parseBlockStatement()
+	case token.WHILE:
+		return p.parseWhileStatement()
 	case token.IF:
 		return p.parseIfStatement()
 	default:
@@ -229,11 +231,7 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	}
 	p.nextToken()
 
-	if p.curTokenIs(token.LEFT_BRACE) {
-		stmt.Consequence = p.parseBlockStatement()
-	} else {
-		stmt.Consequence = p.parseStatement()
-	}
+	stmt.Consequence = p.parseStatement()
 
 	if p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
@@ -241,14 +239,29 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 	if p.curTokenIs(token.ELSE) {
 		p.nextToken()
-
-		if p.curTokenIs(token.LEFT_BRACE) {
-			stmt.Alternative = p.parseBlockStatement()
-		} else {
-			stmt.Alternative = p.parseStatement()
-		}
-
+		stmt.Alternative = p.parseStatement()
 	}
+
+	return stmt
+}
+
+func (p *Parser) parseWhileStatement() *ast.WhileStatement {
+	stmt := &ast.WhileStatement{Token: p.curToken}
+
+	if !p.expectPeek(token.LEFT_PAREN) {
+		return nil
+	}
+
+	p.nextToken()
+	stmt.Condition = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RIGHT_PAREN) {
+		return nil
+	}
+
+	p.nextToken()
+
+	stmt.Consequence = p.parseStatement()
 
 	return stmt
 }

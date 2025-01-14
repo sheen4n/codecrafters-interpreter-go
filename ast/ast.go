@@ -101,6 +101,23 @@ func (is *IfStatement) String() string {
 	return out.String()
 }
 
+type WhileStatement struct {
+	Token       token.Token // the WHILE token
+	Condition   Expression
+	Consequence Statement
+}
+
+func (ws *WhileStatement) statementNode()       {}
+func (ws *WhileStatement) TokenLiteral() string { return ws.Token.Literal }
+func (ws *WhileStatement) String() string {
+	var out bytes.Buffer
+	out.WriteString("while ")
+	out.WriteString(ws.Condition.String())
+	out.WriteString(" ")
+	out.WriteString(ws.Consequence.String())
+	return out.String()
+}
+
 type Boolean struct {
 	Token token.Token
 	Value bool

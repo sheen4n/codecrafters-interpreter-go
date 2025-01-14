@@ -72,7 +72,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(value) {
 			return value
 		}
-
+		io.WriteString(e.stdout, value.Inspect()+"\n")
 		return &object.Print{Value: value}
 	case *ast.AssignExpression:
 		value := e.Eval(node.Value, env)
@@ -105,6 +105,11 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		if node.Alternative != nil {
 			return e.Eval(node.Alternative, env)
 		}
+	case *ast.WhileStatement:
+		for isTruthy(e.Eval(node.Condition, env)) {
+			e.Eval(node.Consequence, env)
+		}
+		return nil
 	}
 	return nil
 }
@@ -147,7 +152,7 @@ func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) 
 			io.WriteString(e.stderr, result.Message)
 			return result
 		case *object.Print:
-			io.WriteString(e.stdout, result.Value.Inspect()+"\n")
+			continue
 		}
 	}
 
