@@ -688,3 +688,71 @@ func TestWhileStatement(t *testing.T) {
 		t.Errorf("stmt.Consequence.String() not %q. got=%q", "{(print foo)}", stmt.Consequence.String())
 	}
 }
+
+func TestForStatementWithoutIncrement(t *testing.T) {
+	input := `for (var baz = 0; baz < 3;) print baz = baz + 1;`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ForStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ForStatement. got=%T", program.Statements[0])
+	}
+
+	if stmt.Init.String() != "var baz = 0.0;" {
+		t.Errorf("stmt.Init.String() not %q. got=%q", "var baz = 0", stmt.Init.String())
+	}
+
+	if stmt.Condition.String() != "(< baz 3.0)" {
+		t.Errorf("stmt.Condition.String() not %q. got=%q", "(< baz 3.0)", stmt.Condition.String())
+	}
+
+	if stmt.Increment != nil {
+		t.Errorf("stmt.Increment not nil")
+	}
+
+	if stmt.Body.String() != "(print null baz = (+ baz 1.0);)" {
+		t.Errorf("stmt.Body.String() not %q. got=%q", "(print null baz = (+ baz 1.0);)", stmt.Body.String())
+	}
+}
+
+func TestForStatementWithIncrement(t *testing.T) {
+	input := `for (var baz = 0; baz < 3; baz = baz + 1){ print baz; }`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ForStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ForStatement. got=%T", program.Statements[0])
+	}
+
+	if stmt.Init.String() != "var baz = 0.0;" {
+		t.Errorf("stmt.Init.String() not %q. got=%q", "var baz = 0.0;", stmt.Init.String())
+	}
+
+	if stmt.Condition.String() != "(< baz 3.0)" {
+		t.Errorf("stmt.Condition.String() not %q. got=%q", "(< baz 3.0)", stmt.Condition.String())
+	}
+
+	if stmt.Increment.String() != "baz = (+ baz 1.0);" {
+		t.Errorf("stmt.Increment.String() not %q. got=%q", "baz = (+ baz 1.0);", stmt.Increment.String())
+	}
+
+	if stmt.Body.String() != "{(print baz)}" {
+		t.Errorf("stmt.Body.String() not %q. got=%q", "{(print baz)}", stmt.Body.String())
+	}
+}

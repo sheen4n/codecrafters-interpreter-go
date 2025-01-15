@@ -192,6 +192,8 @@ func New(l *lexer.Lexer) *Parser {
 
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
+	case token.SEMICOLON:
+		return nil
 	case token.VAR:
 		return p.parseVarStatement()
 	case token.LEFT_BRACE:
@@ -200,6 +202,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseWhileStatement()
 	case token.IF:
 		return p.parseIfStatement()
+	case token.FOR:
+		return p.parseForStatement()
 	default:
 		return p.parseExpressmentStatement()
 	}
@@ -262,6 +266,47 @@ func (p *Parser) parseWhileStatement() *ast.WhileStatement {
 	p.nextToken()
 
 	stmt.Consequence = p.parseStatement()
+
+	return stmt
+}
+
+func (p *Parser) parseForStatement() *ast.ForStatement {
+	stmt := &ast.ForStatement{Token: p.curToken}
+
+	if !p.expectPeek(token.LEFT_PAREN) {
+		return nil
+	}
+	p.nextToken()
+
+	stmt.Init = p.parseStatement()
+
+	if !p.curTokenIs(token.SEMICOLON) {
+		return nil
+	}
+
+	p.nextToken()
+
+	stmt.Condition = p.parseExpression(LOWEST)
+
+	if !p.peekTokenIs(token.SEMICOLON) {
+		return nil
+	}
+
+	p.nextToken()
+	p.nextToken()
+
+	if !p.curTokenIs(token.RIGHT_PAREN) {
+		stmt.Increment = p.parseStatement()
+		p.nextToken()
+	}
+
+	if !p.curTokenIs(token.RIGHT_PAREN) {
+		return nil
+	}
+
+	p.nextToken()
+
+	stmt.Body = p.parseStatement()
 
 	return stmt
 }

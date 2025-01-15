@@ -118,6 +118,29 @@ func (ws *WhileStatement) String() string {
 	return out.String()
 }
 
+type ForStatement struct {
+	Token     token.Token // the FOR token
+	Init      Statement
+	Condition Expression
+	Increment Statement
+	Body      Statement
+}
+
+func (fs *ForStatement) statementNode()       {}
+func (fs *ForStatement) TokenLiteral() string { return fs.Token.Literal }
+func (fs *ForStatement) String() string {
+	var out bytes.Buffer
+	out.WriteString("for (")
+	out.WriteString(fs.Init.String())
+	out.WriteString("; ")
+	out.WriteString(fs.Condition.String())
+	out.WriteString("; ")
+	out.WriteString(fs.Increment.String())
+	out.WriteString(") ")
+	out.WriteString(fs.Body.String())
+	return out.String()
+}
+
 type Boolean struct {
 	Token token.Token
 	Value bool
@@ -236,8 +259,7 @@ func (ls *VarStatement) statementNode()       {}
 func (ls *VarStatement) TokenLiteral() string { return ls.Token.Literal }
 func (ls *VarStatement) String() string {
 	var out bytes.Buffer
-	out.WriteString("var " + ls.TokenLiteral() + " ")
-	out.WriteString(ls.Name.String())
+	out.WriteString("var " + ls.Name.Value)
 	out.WriteString(" = ")
 
 	if ls.Value != nil {
@@ -257,7 +279,6 @@ func (as *AssignExpression) expressionNode()      {}
 func (as *AssignExpression) TokenLiteral() string { return as.Token.Literal }
 func (as *AssignExpression) String() string {
 	var out bytes.Buffer
-	out.WriteString(as.TokenLiteral() + " ")
 	out.WriteString(as.Name.String())
 	out.WriteString(" = ")
 	out.WriteString(as.Value.String())

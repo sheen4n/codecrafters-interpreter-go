@@ -110,6 +110,14 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 			e.Eval(node.Consequence, env)
 		}
 		return nil
+	case *ast.ForStatement:
+		enclosedEnv := object.NewEnclosedEnvironment(env)
+		e.Eval(node.Init, enclosedEnv)
+		for isTruthy(e.Eval(node.Condition, enclosedEnv)) {
+			e.Eval(node.Body, enclosedEnv)
+			e.Eval(node.Increment, enclosedEnv)
+		}
+		return nil
 	}
 	return nil
 }

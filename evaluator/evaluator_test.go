@@ -570,3 +570,21 @@ func TestWhileStatement(t *testing.T) {
 	}
 	testStdout(t, stdout, "1\n2\n3\n")
 }
+
+func TestForStatement(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval(t, `for (var baz = 0; baz < 3; baz = baz + 1) print baz;`, &stdout, &stderr)
+	if evaluated != nil {
+		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
+	}
+	testStdout(t, stdout, "0\n1\n2\n")
+}
+
+func TestForStatementWithoutIncrement(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	evaluated := testEval(t, `for (var baz = 0; baz < 3;) print baz = baz + 1;`, &stdout, &stderr)
+	if evaluated != nil {
+		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
+	}
+	testStdout(t, stdout, "1\n2\n3\n")
+}
