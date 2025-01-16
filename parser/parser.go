@@ -26,7 +26,6 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
-	token.EQUAL:         EQUALS,
 	token.EQUAL_EQUAL:   EQUALS,
 	token.BANG_EQUAL:    EQUALS,
 	token.LESS:          LESSGREATER,
@@ -173,7 +172,6 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.BANG_EQUAL, p.parseInfixExpression)
 	p.registerInfix(token.OR, p.parseInfixExpression)
 	p.registerInfix(token.AND, p.parseInfixExpression)
-	p.registerInfix(token.EQUAL, p.parseAssignExpression)
 
 	// Read two tokens, so curToken and peekToken are both set
 	// Sets the peekToken by calling the lexer's NextToken method
@@ -461,6 +459,13 @@ func (p *Parser) parseVarStatement() *ast.VarStatement {
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
+	identifier := &ast.Identifier{Token: p.curToken, Value: p.curToken.Lexeme}
+
+	if p.peekTokenIs(token.EQUAL) {
+		p.nextToken()
+		return p.parseAssignExpression(identifier)
+	}
+
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Lexeme}
 }
 

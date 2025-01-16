@@ -582,6 +582,26 @@ print hello;
 	}
 }
 
+func TestMultiAssignment(t *testing.T) {
+	input := `
+	var world;
+	var baz;
+	world = baz = 84 + 33 * 60;
+	print world;
+	print baz;
+	
+	`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 5 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+}
+
 func TestIfElseStatement(t *testing.T) {
 	input := `if (true) { print "foo"; } else { print "bar"; }`
 
