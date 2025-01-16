@@ -718,8 +718,8 @@ func TestForStatementWithoutIncrement(t *testing.T) {
 		t.Errorf("stmt.Increment not nil")
 	}
 
-	if stmt.Body.String() != "(print null baz = (+ baz 1.0);)" {
-		t.Errorf("stmt.Body.String() not %q. got=%q", "(print null baz = (+ baz 1.0);)", stmt.Body.String())
+	if stmt.Body.String() != "(print baz = (+ baz 1.0);)" {
+		t.Errorf("stmt.Body.String() not %q. got=%q", "(print baz = (+ baz 1.0);)", stmt.Body.String())
 	}
 }
 

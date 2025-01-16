@@ -26,6 +26,7 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
+	token.EQUAL:         EQUALS,
 	token.EQUAL_EQUAL:   EQUALS,
 	token.BANG_EQUAL:    EQUALS,
 	token.LESS:          LESSGREATER,
@@ -110,15 +111,10 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 	for !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
-		program.Statements = append(program.Statements, stmt)
-
-		if p.peekTokenIs(token.EOF) {
-			break
+		if stmt != nil {
+			program.Statements = append(program.Statements, stmt)
 		}
-
-		for p.curTokenIs(token.SEMICOLON) {
-			p.nextToken()
-		}
+		p.nextToken()
 	}
 
 	return program
@@ -177,7 +173,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.BANG_EQUAL, p.parseInfixExpression)
 	p.registerInfix(token.OR, p.parseInfixExpression)
 	p.registerInfix(token.AND, p.parseInfixExpression)
-	// p.registerInfix(token.EQUAL, p.parseAssignExpression)
+	p.registerInfix(token.EQUAL, p.parseAssignExpression)
 
 	// Read two tokens, so curToken and peekToken are both set
 	// Sets the peekToken by calling the lexer's NextToken method
@@ -237,11 +233,8 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 	stmt.Consequence = p.parseStatement()
 
-	if p.curTokenIs(token.SEMICOLON) {
+	if p.peekTokenIs(token.ELSE) {
 		p.nextToken()
-	}
-
-	if p.curTokenIs(token.ELSE) {
 		p.nextToken()
 		stmt.Alternative = p.parseStatement()
 	}
@@ -381,17 +374,13 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	for !p.curTokenIs(token.RIGHT_BRACE) && !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		block.Statements = append(block.Statements, stmt)
-		if p.curTokenIs(token.SEMICOLON) {
-			p.nextToken()
-		}
+		p.nextToken()
 	}
 
 	if !p.curTokenIs(token.RIGHT_BRACE) {
 		p.errors = append(p.errors, fmt.Sprintf("[line %d] Expect '}'.", p.curToken.Line))
 		return nil
 	}
-
-	p.nextToken()
 
 	return block
 }
@@ -472,14 +461,6 @@ func (p *Parser) parseVarStatement() *ast.VarStatement {
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
-
-	identifier := &ast.Identifier{Token: p.curToken, Value: p.curToken.Lexeme}
-
-	if p.peekTokenIs(token.EQUAL) {
-		p.nextToken()
-		return p.parseAssignExpression(identifier)
-	}
-
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Lexeme}
 }
 
