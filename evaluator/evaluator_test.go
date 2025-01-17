@@ -3,6 +3,8 @@ package evaluator
 import (
 	"bytes"
 	"io"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/codecrafters-io/interpreter-starter-go/lexer"
@@ -334,8 +336,8 @@ func TestVarStatements(t *testing.T) {
 func TestVarStatementsError(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	evaluated := testEval(t, "var a = 5; b;", &stdout, &stderr)
-	testErrorObject(t, evaluated, "Undefined variable 'b'.")
-	testStderr(t, stderr, "Undefined variable 'b'.")
+	testErrorObject(t, evaluated, "undefined variable: b")
+	testStderr(t, stderr, "undefined variable: b")
 }
 
 func TestAssignStatements(t *testing.T) {
@@ -587,4 +589,21 @@ func TestForStatementWithoutIncrement(t *testing.T) {
 		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
 	}
 	testStdout(t, stdout, "1\n2\n3\n")
+}
+
+func TestClockFunction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	input := `print clock();`
+
+	evaluated := testEval(t, input, &stdout, &stderr)
+	if evaluated != nil {
+		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
+	}
+
+	// Since clock returns current time, we can only verify the output is a number
+	output := stdout.String()
+	_, err := strconv.ParseFloat(strings.TrimSpace(output), 64)
+	if err != nil {
+		t.Errorf("clock() did not return a valid number: %s", output)
+	}
 }

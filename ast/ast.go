@@ -3,6 +3,7 @@ package ast
 import (
 	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/codecrafters-io/interpreter-starter-go/token"
 )
@@ -283,5 +284,30 @@ func (as *AssignExpression) String() string {
 	out.WriteString(" = ")
 	out.WriteString(as.Value.String())
 	out.WriteString(";")
+	return out.String()
+}
+
+type CallExpression struct {
+	Token     token.Token // The '(' token
+	Function  Expression  // Identifier or Function Literal
+	Arguments []Expression
+}
+
+func (ce *CallExpression) expressionNode()      {}
+func (ce *CallExpression) TokenLiteral() string { return ce.Token.Literal }
+func (ce *CallExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(ce.Function.String())
+	out.WriteString("(")
+
+	args := []string{}
+	for _, a := range ce.Arguments {
+		args = append(args, a.String())
+	}
+	out.WriteString(strings.Join(args, ", "))
+
+	out.WriteString(")")
+
 	return out.String()
 }

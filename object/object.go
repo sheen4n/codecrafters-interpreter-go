@@ -5,13 +5,14 @@ import "fmt"
 type ObjectType string
 
 const (
-	BOOLEAN_OBJ ObjectType = "BOOLEAN"
-	NIL_OBJ     ObjectType = "NIL"
-	STRING_OBJ  ObjectType = "STRING"
-	NUMBER_OBJ  ObjectType = "NUMBER"
-	ERROR_OBJ   ObjectType = "ERROR"
-	BUILTIN_OBJ ObjectType = "BUILTIN"
-	PRINT_OBJ   ObjectType = "PRINT"
+	BOOLEAN_OBJ         ObjectType = "BOOLEAN"
+	NIL_OBJ             ObjectType = "NIL"
+	STRING_OBJ          ObjectType = "STRING"
+	NUMBER_OBJ          ObjectType = "NUMBER"
+	ERROR_OBJ           ObjectType = "ERROR"
+	BUILTIN_OBJ         ObjectType = "BUILTIN"
+	PRINT_OBJ           ObjectType = "PRINT"
+	NATIVE_FUNCTION_OBJ            = "NATIVE_FUNCTION"
 )
 
 type Object interface {

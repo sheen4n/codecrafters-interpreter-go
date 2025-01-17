@@ -172,6 +172,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.BANG_EQUAL, p.parseInfixExpression)
 	p.registerInfix(token.OR, p.parseInfixExpression)
 	p.registerInfix(token.AND, p.parseInfixExpression)
+	p.registerInfix(token.LEFT_PAREN, p.parseCallExpression)
 
 	// Read two tokens, so curToken and peekToken are both set
 	// Sets the peekToken by calling the lexer's NextToken method
@@ -201,6 +202,12 @@ func (p *Parser) parseStatement() ast.Statement {
 	default:
 		return p.parseExpressmentStatement()
 	}
+}
+
+func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
+	exp := &ast.CallExpression{Token: p.curToken, Function: function}
+	// exp.Arguments = p.parseExpressionList(token.RPAREN)
+	return exp
 }
 
 func (p *Parser) parseExpressmentStatement() *ast.ExpressionStatement {

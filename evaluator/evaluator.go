@@ -3,6 +3,7 @@ package evaluator
 import (
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/codecrafters-io/interpreter-starter-go/ast"
 	"github.com/codecrafters-io/interpreter-starter-go/object"
@@ -13,6 +14,18 @@ var (
 	TRUE  = &object.Boolean{Value: true}
 	FALSE = &object.Boolean{Value: false}
 )
+
+var builtins = map[string]*object.NativeFunction{
+	"clock": {
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 0 {
+				return newError("clock() takes no arguments")
+			}
+			seconds := float64(time.Now().Unix())
+			return &object.Number{Value: seconds}
+		},
+	},
+}
 
 type Evaluator struct {
 	stdout io.Writer
@@ -82,11 +95,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		env.Assign(node.Name.Value, value)
 		return value
 	case *ast.Identifier:
-		obj, ok := env.Get(node.Value)
-		if !ok {
-			return newError("Undefined variable '%s'.", node.Value)
-		}
-		return obj
+		return e.evalIdentifier(node, env)
 	case *ast.VarStatement:
 		value := e.Eval(node.Value, env)
 		if isError(value) {
@@ -118,6 +127,20 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 			e.Eval(node.Increment, enclosedEnv)
 		}
 		return nil
+
+	case *ast.CallExpression:
+		function := e.Eval(node.Function, env)
+		if isError(function) {
+			return function
+		}
+
+		// args := e.evalExpressions(node.Arguments, env)
+		// if len(args) == 1 && isError(args[0]) {
+		// 	return args[0]
+		// }
+		args := []object.Object{}
+
+		return applyFunction(function, args)
 	}
 	return nil
 }
@@ -285,4 +308,32 @@ func evalStringInfixExpression(operator string, left, right object.Object) objec
 		return newError("Operands must be numbers.")
 	}
 	return nil
+}
+
+func applyFunction(fn object.Object, args []object.Object) object.Object {
+
+	switch fn := fn.(type) {
+	// case *object.Function:
+	// 	extendEnv := extendFunctionEnv(fn, args)
+	// 	evaluated := Eval(fn.Body, extendEnv)
+	// 	return unwrapReturnValue(evaluated)
+
+	case *object.NativeFunction:
+		return fn.Fn(args...)
+
+	default:
+		return newError("not a function: %s", fn.Type())
+	}
+}
+
+func (e *Evaluator) evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
+	if val, ok := env.Get(node.Value); ok {
+		return val
+	}
+
+	if builtin, ok := builtins[node.Value]; ok {
+		return builtin
+	}
+
+	return newError("undefined variable: %s", node.Value)
 }
