@@ -604,3 +604,42 @@ func TestClockFunction(t *testing.T) {
 		t.Errorf("clock() did not return a valid number: %s", output)
 	}
 }
+
+func TestFunctionNoArgs(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `
+	fun quz() { print 79; }
+	quz();`, &stdout, &stderr)
+
+	testStdout(t, stdout, "79\n")
+}
+
+func TestFunctionNoStdout(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `fun f() {} f()`, &stdout, &stderr)
+	testStdout(t, stdout, "")
+}
+
+func TestPrintFunctionLiteral(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `fun foo() {} print foo;`, &stdout, &stderr)
+	testStdout(t, stdout, "<fn foo>\n")
+}
+
+func TestCumulativeFunction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `
+		fun cumulative_sum() {
+			var n = 10;
+			var total = 0;
+			var i = 1;
+			while (i <= n) {
+				total = total + i;
+				i = i + 1;
+			}
+			print "The cumulative sum from 1 to 10 is: ";
+			print total;
+		}
+		cumulative_sum();`, &stdout, &stderr)
+	testStdout(t, stdout, "The cumulative sum from 1 to 10 is: \n55\n")
+}

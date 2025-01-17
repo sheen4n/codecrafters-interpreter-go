@@ -128,6 +128,15 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		return nil
 
+	case *ast.FunctionLiteral:
+		function := &object.Function{
+			Parameters: node.Parameters,
+			Body:       node.Body,
+			Env:        env,
+		}
+
+		env.Define(node.Name.Value, function)
+		return function
 	case *ast.CallExpression:
 		function := e.Eval(node.Function, env)
 		if isError(function) {
@@ -140,7 +149,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		// }
 		args := []object.Object{}
 
-		return applyFunction(function, args)
+		return e.applyFunction(function, args)
 	}
 	return nil
 }
@@ -310,13 +319,14 @@ func evalStringInfixExpression(operator string, left, right object.Object) objec
 	return nil
 }
 
-func applyFunction(fn object.Object, args []object.Object) object.Object {
+func (e *Evaluator) applyFunction(fn object.Object, args []object.Object) object.Object {
 
 	switch fn := fn.(type) {
-	// case *object.Function:
-	// 	extendEnv := extendFunctionEnv(fn, args)
-	// 	evaluated := Eval(fn.Body, extendEnv)
-	// 	return unwrapReturnValue(evaluated)
+	case *object.Function:
+		// extendEnv := extendFunctionEnv(fn, args)
+		e.Eval(fn.Body, fn.Env)
+		// return unwrapReturnValue(evaluated)
+		return nil
 
 	case *object.NativeFunction:
 		return fn.Fn(args...)

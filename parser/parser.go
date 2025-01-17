@@ -158,6 +158,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.PRINT, p.parsePrintStatement)
 	p.registerPrefix(token.IDENTIFIER, p.parseIdentifier)
+	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -508,4 +509,30 @@ func (p *Parser) parseAssignExpression(left ast.Expression) ast.Expression {
 	p.nextToken()
 	expression.Value = p.parseExpression(precedence)
 	return expression
+}
+
+func (p *Parser) parseFunctionLiteral() ast.Expression {
+	fn := &ast.FunctionLiteral{Token: p.curToken}
+
+	if p.peekTokenIs(token.IDENTIFIER) {
+		p.nextToken()
+		fn.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Lexeme}
+	} else {
+		p.errors = append(p.errors, fmt.Sprintf("[line %d] Expect function name.", p.curToken.Line))
+		return nil
+	}
+
+	if !p.expectPeek(token.LEFT_PAREN) {
+		return nil
+	}
+
+	// expression.Parameters = p.parseFunctionParameters()
+	if !p.expectPeek(token.RIGHT_PAREN) {
+		return nil
+	}
+	p.nextToken()
+
+	fn.Body = p.parseBlockStatement()
+
+	return fn
 }

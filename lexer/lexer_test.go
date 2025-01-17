@@ -149,7 +149,7 @@ func TestReservedKeywords(t *testing.T) {
 		{Type: token.ELSE, Lexeme: "else", Literal: "null", Line: 1},
 		{Type: token.FALSE, Lexeme: "false", Literal: "null", Line: 1},
 		{Type: token.FOR, Lexeme: "for", Literal: "null", Line: 1},
-		{Type: token.FUN, Lexeme: "fun", Literal: "null", Line: 1},
+		{Type: token.FUNCTION, Lexeme: "fun", Literal: "null", Line: 1},
 		{Type: token.IF, Lexeme: "if", Literal: "null", Line: 1},
 		{Type: token.NIL, Lexeme: "nil", Literal: "null", Line: 1},
 		{Type: token.OR, Lexeme: "or", Literal: "null", Line: 1},

@@ -45,22 +45,22 @@ const (
 	IDENTIFIER = "IDENTIFIER"
 
 	// Reserved Keywords
-	AND    = "AND"
-	CLASS  = "CLASS"
-	ELSE   = "ELSE"
-	FALSE  = "FALSE"
-	FOR    = "FOR"
-	FUN    = "FUN"
-	IF     = "IF"
-	NIL    = "NIL"
-	OR     = "OR"
-	PRINT  = "PRINT"
-	RETURN = "RETURN"
-	SUPER  = "SUPER"
-	THIS   = "THIS"
-	TRUE   = "TRUE"
-	VAR    = "VAR"
-	WHILE  = "WHILE"
+	AND      = "AND"
+	CLASS    = "CLASS"
+	ELSE     = "ELSE"
+	FALSE    = "FALSE"
+	FOR      = "FOR"
+	FUNCTION = "FUN"
+	IF       = "IF"
+	NIL      = "NIL"
+	OR       = "OR"
+	PRINT    = "PRINT"
+	RETURN   = "RETURN"
+	SUPER    = "SUPER"
+	THIS     = "THIS"
+	TRUE     = "TRUE"
+	VAR      = "VAR"
+	WHILE    = "WHILE"
 )
 
 var keywords = map[string]TokenType{
@@ -69,7 +69,7 @@ var keywords = map[string]TokenType{
 	"else":   ELSE,
 	"false":  FALSE,
 	"for":    FOR,
-	"fun":    FUN,
+	"fun":    FUNCTION,
 	"if":     IF,
 	"nil":    NIL,
 	"or":     OR,
