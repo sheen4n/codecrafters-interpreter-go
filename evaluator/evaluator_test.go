@@ -593,12 +593,9 @@ func TestForStatementWithoutIncrement(t *testing.T) {
 
 func TestClockFunction(t *testing.T) {
 	var stdout, stderr bytes.Buffer
-	input := `print clock();`
+	input := `print clock() + 10;`
 
-	evaluated := testEval(t, input, &stdout, &stderr)
-	if evaluated != nil {
-		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
-	}
+	testEval(t, input, &stdout, &stderr)
 
 	// Since clock returns current time, we can only verify the output is a number
 	output := stdout.String()

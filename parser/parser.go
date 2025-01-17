@@ -207,6 +207,9 @@ func (p *Parser) parseStatement() ast.Statement {
 func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
 	exp := &ast.CallExpression{Token: p.curToken, Function: function}
 	// exp.Arguments = p.parseExpressionList(token.RPAREN)
+	if !p.expectPeek(token.RIGHT_PAREN) {
+		return nil
+	}
 	return exp
 }
 
