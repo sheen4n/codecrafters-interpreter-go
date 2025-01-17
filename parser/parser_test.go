@@ -781,3 +781,30 @@ func TestSyntaxError(t *testing.T) {
 		}
 	}
 }
+
+func TestClockNativeFunction(t *testing.T) {
+	input := `clock()`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	call, ok := stmt.Expression.(*ast.CallExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.CallExpression. got=%T", stmt.Expression)
+	}
+
+	if call.Function.String() != "clock" {
+		t.Errorf("call.Function.String() not %q. got=%q", "clock", call.Function.String())
+	}
+}
