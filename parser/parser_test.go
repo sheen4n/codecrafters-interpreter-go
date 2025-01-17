@@ -267,31 +267,6 @@ func TestComparisonExpression(t *testing.T) {
 	}
 }
 
-func TestSyntaxError(t *testing.T) {
-	tests := []struct {
-		input         string
-		expectedError string
-	}{
-		{"(72 +)", "[line 1] Error at ')': Expect expression."},
-	}
-
-	for _, tt := range tests {
-
-		l := lexer.New(tt.input)
-		p := New(l)
-		p.ParseProgram()
-
-		errors := p.Errors()
-		if len(errors) == 0 {
-			t.Errorf("expected error, got none")
-		}
-
-		if errors[0] != tt.expectedError {
-			t.Errorf("expected error %q, got %q", tt.expectedError, errors[0])
-		}
-	}
-}
-
 func TestPrintExpression(t *testing.T) {
 	input := `print "hello world"`
 
@@ -774,5 +749,35 @@ func TestForStatementWithIncrement(t *testing.T) {
 
 	if stmt.Body.String() != "{(print baz)}" {
 		t.Errorf("stmt.Body.String() not %q. got=%q", "{(print baz)}", stmt.Body.String())
+	}
+}
+
+func TestSyntaxError(t *testing.T) {
+	tests := []struct {
+		input         string
+		expectedError string
+	}{
+		{"(72 +)", "[line 1] Error at ')': Expect expression."},
+		{`for (;;) var foo;`, "[line 1] var statement should be in a block."},
+		{`for (var a = 1; {}; a = a + 1) {}`, "[line 1] Error at '{': Expect expression."},
+		{`for (var a = 1; a < 2; {}) {}`, "[line 1] Empty increment condition."},
+		{`for ({}; a < 2; a = a + 1) {}`, "[line 1] Empty initial condition."},
+	}
+
+	for _, tt := range tests {
+
+		l := lexer.New(tt.input)
+		p := New(l)
+		p.ParseProgram()
+
+		errors := p.Errors()
+		if len(errors) == 0 {
+			t.Errorf("expected error, got none")
+			continue
+		}
+
+		if errors[0] != tt.expectedError {
+			t.Errorf("expected error %q, got %q", tt.expectedError, errors[0])
+		}
 	}
 }

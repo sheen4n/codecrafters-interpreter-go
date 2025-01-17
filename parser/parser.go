@@ -271,24 +271,37 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 
 	stmt.Init = p.parseStatement()
 
+	blockStmt, isBlockStmt := stmt.Init.(*ast.BlockStatement)
+	if isBlockStmt && len(blockStmt.Statements) == 0 {
+		p.errors = append(p.errors, fmt.Sprintf("[line %d] Empty initial condition.", stmt.Token.Line))
+		return nil
+	}
+
 	if !p.curTokenIs(token.SEMICOLON) {
 		return nil
 	}
 
 	p.nextToken()
 
-	stmt.Condition = p.parseExpression(LOWEST)
-
-	if !p.peekTokenIs(token.SEMICOLON) {
-		return nil
+	if p.curTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	} else {
+		stmt.Condition = p.parseExpression(LOWEST)
+		if !p.peekTokenIs(token.SEMICOLON) {
+			return nil
+		}
+		p.nextToken()
+		p.nextToken()
 	}
-
-	p.nextToken()
-	p.nextToken()
 
 	if !p.curTokenIs(token.RIGHT_PAREN) {
 		stmt.Increment = p.parseStatement()
 		p.nextToken()
+		blockStmt, isBlockStmt := stmt.Increment.(*ast.BlockStatement)
+		if isBlockStmt && len(blockStmt.Statements) == 0 {
+			p.errors = append(p.errors, fmt.Sprintf("[line %d] Empty increment condition.", stmt.Token.Line))
+			return nil
+		}
 	}
 
 	if !p.curTokenIs(token.RIGHT_PAREN) {
@@ -298,6 +311,12 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	p.nextToken()
 
 	stmt.Body = p.parseStatement()
+
+	_, isVarStmt := stmt.Body.(*ast.VarStatement)
+	if isVarStmt {
+		p.errors = append(p.errors, fmt.Sprintf("[line %d] var statement should be in a block.", stmt.Token.Line))
+		return nil
+	}
 
 	return stmt
 }
