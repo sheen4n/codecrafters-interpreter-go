@@ -355,9 +355,7 @@ func TestAssignByEquality(t *testing.T) {
 func TestBlockStatement(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	evaluated := testEval(t, "{ var x = 10; print x; }", &stdout, &stderr)
-	if evaluated != nil {
-		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
-	}
+	testPrintObject(t, evaluated, "10")
 	testStdout(t, stdout, "10\n")
 }
 
@@ -376,9 +374,7 @@ func TestBlockStatementWithScope(t *testing.T) {
 		`,
 		&stdout, &stderr,
 	)
-	if evaluated != nil {
-		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
-	}
+	testPrintObject(t, evaluated, "before")
 	testStdout(t, stdout, "after\nbefore\n")
 }
 
@@ -567,27 +563,21 @@ func TestAndExpression(t *testing.T) {
 func TestWhileStatement(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	evaluated := testEval(t, `var baz = 0; while (baz < 3) print baz = baz + 1;`, &stdout, &stderr)
-	if evaluated != nil {
-		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
-	}
+	testNilObject(t, evaluated)
 	testStdout(t, stdout, "1\n2\n3\n")
 }
 
 func TestForStatement(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	evaluated := testEval(t, `for (var baz = 0; baz < 3; baz = baz + 1) print baz;`, &stdout, &stderr)
-	if evaluated != nil {
-		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
-	}
+	testNilObject(t, evaluated)
 	testStdout(t, stdout, "0\n1\n2\n")
 }
 
 func TestForStatementWithoutIncrement(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	evaluated := testEval(t, `for (var baz = 0; baz < 3;) print baz = baz + 1;`, &stdout, &stderr)
-	if evaluated != nil {
-		t.Errorf("expected nil, got %T (%+v)", evaluated, evaluated)
-	}
+	testNilObject(t, evaluated)
 	testStdout(t, stdout, "1\n2\n3\n")
 }
 
@@ -658,4 +648,31 @@ func TestReturnStatement(t *testing.T) {
 	testEval(t, `fun foo() { return 10; }
 	print foo();`, &stdout, &stderr)
 	testStdout(t, stdout, "10\n")
+}
+
+func TestFunctionReturnNil(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `fun f() {
+  while (!true) return "ok";
+}
+
+print f();`, &stdout, &stderr)
+	testStdout(t, stdout, "nil\n")
+}
+
+func TestEmptyFunction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `fun f() {} print f();`, &stdout, &stderr)
+	testStdout(t, stdout, "nil\n")
+}
+
+func TestFunctionReturnNilWithSemicolon(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `fun f() {
+  return;
+  print "bad";
+}
+
+print f();`, &stdout, &stderr)
+	testStdout(t, stdout, "nil\n")
 }

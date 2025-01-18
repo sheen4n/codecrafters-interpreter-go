@@ -101,7 +101,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 			return value
 		}
 		env.Define(node.Name.Value, value)
-		return nil
+		return NIL
 	case *ast.IfStatement:
 		condition := e.Eval(node.Condition, env)
 		if isError(condition) {
@@ -113,6 +113,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		if node.Alternative != nil {
 			return e.Eval(node.Alternative, env)
 		}
+		return nil
 	case *ast.WhileStatement:
 		for isTruthy(e.Eval(node.Condition, env)) {
 			e.Eval(node.Consequence, env)
@@ -155,7 +156,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		return &object.ReturnValue{Value: value}
 	}
-	return nil
+	return NIL
 }
 
 func isTruthy(obj object.Object) bool {
@@ -185,7 +186,7 @@ func isError(obj object.Object) bool {
 
 func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) object.Object {
 	if len(stmts) == 0 {
-		return nil
+		return NIL
 	}
 
 	var result object.Object
@@ -200,6 +201,9 @@ func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) 
 		case *object.Print:
 			continue
 		}
+	}
+	if result == nil {
+		return NIL
 	}
 
 	return result
