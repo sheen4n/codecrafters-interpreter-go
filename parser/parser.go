@@ -207,11 +207,34 @@ func (p *Parser) parseStatement() ast.Statement {
 
 func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
 	exp := &ast.CallExpression{Token: p.curToken, Function: function}
-	// exp.Arguments = p.parseExpressionList(token.RPAREN)
-	if !p.expectPeek(token.RIGHT_PAREN) {
+	exp.Arguments = p.parseExpressionList(token.RIGHT_PAREN)
+	if !p.curTokenIs(token.RIGHT_PAREN) {
 		return nil
 	}
 	return exp
+}
+
+func (p *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
+	list := []ast.Expression{}
+
+	p.nextToken()
+	if p.curTokenIs(end) {
+		return list
+	}
+
+	list = append(list, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		list = append(list, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(end) {
+		return nil
+	}
+
+	return list
 }
 
 func (p *Parser) parseExpressmentStatement() *ast.ExpressionStatement {

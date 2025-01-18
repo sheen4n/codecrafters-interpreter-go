@@ -643,3 +643,12 @@ func TestCumulativeFunction(t *testing.T) {
 		cumulative_sum();`, &stdout, &stderr)
 	testStdout(t, stdout, "The cumulative sum from 1 to 10 is: \n55\n")
 }
+
+func TestFunctionWithArgs(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `
+		fun add(a, b) { print a + b; }
+		add(1, 2);
+	`, &stdout, &stderr)
+	testStdout(t, stdout, "3\n")
+}

@@ -9,6 +9,8 @@ import (
 
 func testLiteralExpression(t *testing.T, exp ast.Expression, expected interface{}) bool {
 	switch v := expected.(type) {
+	case int:
+		return testNumberLiteral(t, exp, float64(v))
 	case float64:
 		return testNumberLiteral(t, exp, v)
 	case string:
@@ -80,6 +82,24 @@ func testStringLiteral(t *testing.T, exp ast.Expression, value string) bool {
 		t.Errorf("str.Value not %q. got=%q", value, str.Value)
 		return false
 	}
+	return true
+}
+
+func testInfixExpression(t *testing.T, exp ast.Expression, left interface{}, operator string, right interface{}) bool {
+	infix, ok := exp.(*ast.InfixExpression)
+	if !ok {
+		t.Errorf("exp not *ast.InfixExpression. got=%T", exp)
+		return false
+	}
+
+	if infix.Operator != operator {
+		t.Errorf("infix.Operator not %q. got=%q", operator, infix.Operator)
+		return false
+	}
+
+	testLiteralExpression(t, infix.Left, left)
+	testLiteralExpression(t, infix.Right, right)
+
 	return true
 }
 
@@ -885,4 +905,35 @@ func TestFunctionParameterParsing(t *testing.T) {
 			testLiteralExpression(t, function.Parameters[i], ident)
 		}
 	}
+}
+
+func TestCallExpressionParsing(t *testing.T) {
+	input := `add(1, 2 + 3, 4 + 5);`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	call, ok := stmt.Expression.(*ast.CallExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.CallExpression. got=%T", stmt.Expression)
+	}
+
+	if len(call.Arguments) != 3 {
+		t.Fatalf("wrong length of arguments. got=%d", len(call.Arguments))
+	}
+
+	testLiteralExpression(t, call.Arguments[0], 1)
+	testInfixExpression(t, call.Arguments[1], 2, "+", 3)
+	testInfixExpression(t, call.Arguments[2], 4, "+", 5)
 }
