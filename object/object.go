@@ -19,6 +19,7 @@ const (
 	PRINT_OBJ           ObjectType = "PRINT"
 	NATIVE_FUNCTION_OBJ            = "NATIVE_FUNCTION"
 	FUNCTION_OBJ                   = "FUNCTION"
+	RETURN_VALUE_OBJ               = "RETURN_VALUE"
 )
 
 type Object interface {
@@ -74,18 +75,14 @@ func (f *Function) Type() ObjectType { return FUNCTION_OBJ }
 func (f *Function) Inspect() string {
 	var out bytes.Buffer
 
-	// params := []string{}
-	// for _, p := range f.Parameters {
-	// 	params = append(params, p.String())
-	// }
-
-	// out.WriteString("fun")
-	// out.WriteString("(")
-	// out.WriteString(strings.Join(params, ", "))
-	// out.WriteString(") {\n")
-	// out.WriteString(f.Body.String())
-	// out.WriteString("\n}")
 	out.WriteString("<fn foo>")
 
 	return out.String()
 }
+
+type ReturnValue struct {
+	Value Object
+}
+
+func (rv *ReturnValue) Type() ObjectType { return RETURN_VALUE_OBJ }
+func (rv *ReturnValue) Inspect() string  { return rv.Value.Inspect() }

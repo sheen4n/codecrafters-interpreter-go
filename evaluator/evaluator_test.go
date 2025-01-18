@@ -652,3 +652,10 @@ func TestFunctionWithArgs(t *testing.T) {
 	`, &stdout, &stderr)
 	testStdout(t, stdout, "3\n")
 }
+
+func TestReturnStatement(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `fun foo() { return 10; }
+	print foo();`, &stdout, &stderr)
+	testStdout(t, stdout, "10\n")
+}

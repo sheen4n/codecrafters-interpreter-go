@@ -42,8 +42,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		return e.evalProgram(node.Statements, env)
 	case *ast.BlockStatement:
 		enclosedEnv := object.NewEnclosedEnvironment(env)
-		e.evalProgram(node.Statements, enclosedEnv)
-		return nil
+		return e.evalProgram(node.Statements, enclosedEnv)
 	case *ast.ExpressionStatement:
 		return e.Eval(node.Expression, env)
 	case *ast.Boolean:
@@ -149,6 +148,12 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 		return e.applyFunction(function, args)
+	case *ast.ReturnStatement:
+		value := e.Eval(node.ReturnValue, env)
+		if isError(value) {
+			return value
+		}
+		return &object.ReturnValue{Value: value}
 	}
 	return nil
 }
@@ -187,6 +192,8 @@ func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) 
 	for _, stmt := range stmts {
 		result = e.Eval(stmt, env)
 		switch result := result.(type) {
+		case *object.ReturnValue:
+			return result.Value
 		case *object.Error:
 			io.WriteString(e.stderr, result.Message)
 			return result
@@ -331,9 +338,8 @@ func (e *Evaluator) applyFunction(fn object.Object, args []object.Object) object
 	switch fn := fn.(type) {
 	case *object.Function:
 		extendEnv := extendFunctionEnv(fn, args)
-		e.Eval(fn.Body, extendEnv)
-		// return unwrapReturnValue(evaluated)
-		return nil
+		returnedValue := e.Eval(fn.Body, extendEnv)
+		return unwrapReturnValue(returnedValue)
 
 	case *object.NativeFunction:
 		return fn.Fn(args...)
@@ -341,6 +347,13 @@ func (e *Evaluator) applyFunction(fn object.Object, args []object.Object) object
 	default:
 		return newError("not a function: %s", fn.Type())
 	}
+}
+
+func unwrapReturnValue(obj object.Object) object.Object {
+	if returnValue, ok := obj.(*object.ReturnValue); ok {
+		return returnValue.Value
+	}
+	return obj
 }
 
 func (e *Evaluator) evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
