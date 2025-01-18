@@ -552,6 +552,7 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	fn.Parameters = p.parseFunctionParameters()
 
 	if !p.expectPeek(token.LEFT_BRACE) {
+		p.errors = append(p.errors, fmt.Sprintf("[line %d] Expect '{'.", p.curToken.Line))
 		return nil
 	}
 
