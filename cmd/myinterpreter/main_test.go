@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -391,13 +390,11 @@ func TestEvaluate(t *testing.T) {
 				}
 			}
 
-			fmt.Println("here")
 			var stdout, stderr bytes.Buffer
 			ok := evaluate(tt.filename, &stdout, &stderr)
 
 			// Check error
 			errOutput := stderr.String()
-			fmt.Println("here2")
 			if tt.wantErr != "" {
 				if strings.TrimSpace(errOutput) != strings.TrimSpace(tt.wantErr) {
 					t.Errorf("expected error %v, got %v", tt.wantErr, errOutput)
@@ -410,10 +407,8 @@ func TestEvaluate(t *testing.T) {
 					t.Errorf("expected no error, got %v", errOutput)
 				}
 			}
-			fmt.Println("here3")
 			// Check output
 			output := stdout.String()
-			fmt.Println(output)
 			if tt.wantOutput != "" && strings.TrimSpace(output) != tt.wantOutput {
 				t.Errorf("expected output %v, got %v", tt.wantOutput, output)
 			}

@@ -73,7 +73,7 @@ func evaluate(filename string, stdout, stderr io.Writer) bool {
 	}
 
 	env := object.NewEnvironment()
-	e := evaluator.NewEvaluator(stdout, stderr)
+	e := evaluator.NewEvaluator(&stdout, &stderr)
 
 	evaluated := e.Eval(program, env)
 	return evaluated == nil || evaluated.Type() != object.ERROR_OBJ

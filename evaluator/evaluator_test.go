@@ -30,7 +30,7 @@ func testEval(t *testing.T, input string, stdout, stderr io.Writer) object.Objec
 	checkParserErrors(t, p)
 	program := p.ParseProgram()
 	env := object.NewEnvironment()
-	e := NewEvaluator(stdout, stderr)
+	e := NewEvaluator(&stdout, &stderr)
 	return e.Eval(program, env)
 }
 
@@ -563,21 +563,29 @@ func TestAndExpression(t *testing.T) {
 func TestWhileStatement(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	evaluated := testEval(t, `var baz = 0; while (baz < 3) print baz = baz + 1;`, &stdout, &stderr)
-	testNilObject(t, evaluated)
+	if evaluated != nil {
+		t.Errorf("evaluated is not nil: %v", evaluated)
+	}
 	testStdout(t, stdout, "1\n2\n3\n")
 }
 
 func TestForStatement(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	evaluated := testEval(t, `for (var baz = 0; baz < 3; baz = baz + 1) print baz;`, &stdout, &stderr)
-	testNilObject(t, evaluated)
+	// testNilObject(t, evaluated)
+	if evaluated != nil {
+		t.Errorf("evaluated is not nil: %v", evaluated)
+	}
 	testStdout(t, stdout, "0\n1\n2\n")
 }
 
 func TestForStatementWithoutIncrement(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	evaluated := testEval(t, `for (var baz = 0; baz < 3;) print baz = baz + 1;`, &stdout, &stderr)
-	testNilObject(t, evaluated)
+	// testNilObject(t, evaluated)
+	if evaluated != nil {
+		t.Errorf("evaluated is not nil: %v", evaluated)
+	}
 	testStdout(t, stdout, "1\n2\n3\n")
 }
 
@@ -593,6 +601,26 @@ func TestClockFunction(t *testing.T) {
 	if err != nil {
 		t.Errorf("clock() did not return a valid number: %s", output)
 	}
+}
+
+func TestClockFunctionWithWhile(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `
+		var startTime = clock();
+		var lastCheck = startTime;
+		var running = true;
+
+		print "Starting timer for 0.2 seconds";
+		var startTime = clock();
+
+		while (running) {
+			if (clock() > startTime + 0.2) {
+				print "Timer ended";
+				running = false;
+			}
+		}`, &stdout, &stderr)
+
+	testStdout(t, stdout, "Starting timer for 0.2 seconds\nTimer ended\n")
 }
 
 func TestFunctionNoArgs(t *testing.T) {

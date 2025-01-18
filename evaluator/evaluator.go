@@ -32,8 +32,8 @@ type Evaluator struct {
 	stderr io.Writer
 }
 
-func NewEvaluator(stdout, stderr io.Writer) *Evaluator {
-	return &Evaluator{stdout: stdout, stderr: stderr}
+func NewEvaluator(stdout, stderr *io.Writer) *Evaluator {
+	return &Evaluator{stdout: *stdout, stderr: *stderr}
 }
 
 func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
@@ -84,7 +84,12 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(value) {
 			return value
 		}
-		io.WriteString(e.stdout, value.Inspect()+"\n")
+		if value == nil {
+			io.WriteString(e.stdout, "nil\n")
+		} else {
+			io.WriteString(e.stdout, value.Inspect()+"\n")
+		}
+
 		return &object.Print{Value: value}
 	case *ast.AssignExpression:
 		value := e.Eval(node.Value, env)
@@ -117,7 +122,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.WhileStatement:
 		for isTruthy(e.Eval(node.Condition, env)) {
 			result := e.Eval(node.Consequence, env)
-			if result.Type() == object.RETURN_VALUE_OBJ {
+			if result != nil && result.Type() == object.RETURN_VALUE_OBJ {
 				return result
 			}
 		}
@@ -162,7 +167,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		return &object.ReturnValue{Value: value}
 	}
-	return NIL
+	return nil
 }
 
 func isTruthy(obj object.Object) bool {
@@ -193,18 +198,27 @@ func isError(obj object.Object) bool {
 func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) object.Object {
 	result := e.evalBlockStatement(stmts, env)
 
+	if result == nil {
+		return nil
+	}
+
 	if result.Type() == object.ERROR_OBJ {
 		return result
 	}
 
-	// io.WriteString(e.stdout, result.Inspect())
-	// io.WriteString(e.stdout, "\n")
+	if result.Type() == object.PRINT_OBJ {
+		return result
+	}
+
+	io.WriteString(e.stdout, result.Inspect())
+	io.WriteString(e.stdout, "\n")
+
 	return result
 }
 
 func (e *Evaluator) evalBlockStatement(stmts []ast.Statement, env *object.Environment) object.Object {
 	if len(stmts) == 0 {
-		return NIL
+		return nil
 	}
 
 	var result object.Object
@@ -219,9 +233,6 @@ func (e *Evaluator) evalBlockStatement(stmts []ast.Statement, env *object.Enviro
 		case *object.Print:
 			continue
 		}
-	}
-	if result == nil {
-		return NIL
 	}
 
 	return result
