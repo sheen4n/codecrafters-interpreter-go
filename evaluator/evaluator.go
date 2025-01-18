@@ -42,7 +42,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		return e.evalProgram(node.Statements, env)
 	case *ast.BlockStatement:
 		enclosedEnv := object.NewEnclosedEnvironment(env)
-		return e.evalProgram(node.Statements, enclosedEnv)
+		return e.evalBlockStatement(node.Statements, enclosedEnv)
 	case *ast.ExpressionStatement:
 		return e.Eval(node.Expression, env)
 	case *ast.Boolean:
@@ -101,7 +101,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 			return value
 		}
 		env.Define(node.Name.Value, value)
-		return NIL
+		return nil
 	case *ast.IfStatement:
 		condition := e.Eval(node.Condition, env)
 		if isError(condition) {
@@ -116,14 +116,20 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 		return nil
 	case *ast.WhileStatement:
 		for isTruthy(e.Eval(node.Condition, env)) {
-			e.Eval(node.Consequence, env)
+			result := e.Eval(node.Consequence, env)
+			if result.Type() == object.RETURN_VALUE_OBJ {
+				return result
+			}
 		}
 		return nil
 	case *ast.ForStatement:
 		enclosedEnv := object.NewEnclosedEnvironment(env)
 		e.Eval(node.Init, enclosedEnv)
 		for isTruthy(e.Eval(node.Condition, enclosedEnv)) {
-			e.Eval(node.Body, enclosedEnv)
+			result := e.Eval(node.Body, enclosedEnv)
+			if result.Type() == object.RETURN_VALUE_OBJ {
+				return result
+			}
 			e.Eval(node.Increment, enclosedEnv)
 		}
 		return nil
@@ -185,6 +191,18 @@ func isError(obj object.Object) bool {
 }
 
 func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) object.Object {
+	result := e.evalBlockStatement(stmts, env)
+
+	if result.Type() == object.ERROR_OBJ {
+		return result
+	}
+
+	// io.WriteString(e.stdout, result.Inspect())
+	// io.WriteString(e.stdout, "\n")
+	return result
+}
+
+func (e *Evaluator) evalBlockStatement(stmts []ast.Statement, env *object.Environment) object.Object {
 	if len(stmts) == 0 {
 		return NIL
 	}

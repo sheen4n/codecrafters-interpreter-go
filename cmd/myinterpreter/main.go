@@ -76,15 +76,7 @@ func evaluate(filename string, stdout, stderr io.Writer) bool {
 	e := evaluator.NewEvaluator(stdout, stderr)
 
 	evaluated := e.Eval(program, env)
-	if evaluated != nil && evaluated.Type() != object.PRINT_OBJ {
-		if evaluated.Type() == object.ERROR_OBJ {
-			return false
-		}
-		io.WriteString(stdout, evaluated.Inspect())
-		io.WriteString(stdout, "\n")
-	}
-
-	return true
+	return evaluated == nil || evaluated.Type() != object.ERROR_OBJ
 }
 
 func execute(command, filename string, stdout, stderr io.Writer) bool {

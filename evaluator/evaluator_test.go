@@ -676,3 +676,13 @@ func TestFunctionReturnNilWithSemicolon(t *testing.T) {
 print f();`, &stdout, &stderr)
 	testStdout(t, stdout, "nil\n")
 }
+
+func TestWhileStatementReturnValue(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `fun f() {
+  while (!false) return "ok";
+}
+
+print f();`, &stdout, &stderr)
+	testStdout(t, stdout, "ok\n")
+}

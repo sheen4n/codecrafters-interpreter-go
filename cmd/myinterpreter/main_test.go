@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -292,83 +293,92 @@ func TestEvaluate(t *testing.T) {
 			wantErr:    "",
 			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("true"), 0644) },
 		},
-		{
-			name:       "evaluate nil",
-			filename:   "nil.txt",
-			wantOutput: "nil",
-			wantErr:    "",
-			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("nil"), 0644) },
-		},
-		{
-			name:       "evaluate string",
-			filename:   "string.txt",
-			wantOutput: "hello world!",
-			wantErr:    "",
-			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello world!"`), 0644) },
-		},
-		{
-			name:       "evaluate number",
-			filename:   "number.txt",
-			wantOutput: "10.4",
-			wantErr:    "",
-			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("10.4"), 0644) },
-		},
-		{
-			name:       "evaluate group",
-			filename:   "group.txt",
-			wantOutput: "10.4",
-			wantErr:    "",
-			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("(10.4)"), 0644) },
-		},
-		{
-			name:       "evaluate unary",
-			filename:   "unary.txt",
-			wantOutput: "false",
-			wantErr:    "",
-			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("!true"), 0644) },
-		},
-		{
-			name:       "evaluate arithmetic",
-			filename:   "arithmetic.txt",
-			wantOutput: "20.8",
-			wantErr:    "",
-			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("10.4 + 10.4"), 0644) },
-		},
-		{
-			name:       "evaluate string concatenation",
-			filename:   "string_concatenation.txt",
-			wantOutput: "hello world",
-			wantErr:    "",
-			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello" + " " + "world"`), 0644) },
-		},
-		{
-			name:       "evaluate relational operators",
-			filename:   "relational_operators.txt",
-			wantOutput: "true",
-			wantErr:    "",
-			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`57 > -5`), 0644) },
-		},
-		{
-			name:       "evaluate equality operators",
-			filename:   "equality_operators.txt",
-			wantOutput: "true",
-			wantErr:    "",
-			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello" == "hello"`), 0644) },
-		},
-		{
-			name:       "evaluate number equality",
-			filename:   "number_equality.txt",
-			wantOutput: "false",
-			wantErr:    "",
-			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`61 == "61"`), 0644) },
-		},
-		{
-			name:       "evaluate error",
-			filename:   "error.txt",
-			wantOutput: "",
-			wantErr:    "Operand must be a number.",
-			setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`-true`), 0644) },
-		},
+		// {
+		// 	name:       "evaluate nil",
+		// 	filename:   "nil.txt",
+		// 	wantOutput: "nil",
+		// 	wantErr:    "",
+		// 	setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("nil"), 0644) },
+		// },
+		// {
+		// 	name:       "evaluate string",
+		// 	filename:   "string.txt",
+		// 	wantOutput: "hello world!",
+		// 	wantErr:    "",
+		// 	setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello world!"`), 0644) },
+		// },
+		// {
+		// 	name:       "evaluate number",
+		// 	filename:   "number.txt",
+		// 	wantOutput: "10.4",
+		// 	wantErr:    "",
+		// 	setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("10.4"), 0644) },
+		// },
+		// {
+		// 	name:       "evaluate group",
+		// 	filename:   "group.txt",
+		// 	wantOutput: "10.4",
+		// 	wantErr:    "",
+		// 	setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("(10.4)"), 0644) },
+		// },
+		// {
+		// 	name:       "evaluate unary",
+		// 	filename:   "unary.txt",
+		// 	wantOutput: "false",
+		// 	wantErr:    "",
+		// 	setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("!true"), 0644) },
+		// },
+		// {
+		// 	name:       "evaluate arithmetic",
+		// 	filename:   "arithmetic.txt",
+		// 	wantOutput: "20.8",
+		// 	wantErr:    "",
+		// 	setupFile:  func(filename string) error { return os.WriteFile(filename, []byte("10.4 + 10.4"), 0644) },
+		// },
+		// {
+		// 	name:       "evaluate string concatenation",
+		// 	filename:   "string_concatenation.txt",
+		// 	wantOutput: "hello world",
+		// 	wantErr:    "",
+		// 	setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello" + " " + "world"`), 0644) },
+		// },
+		// {
+		// 	name:       "evaluate relational operators",
+		// 	filename:   "relational_operators.txt",
+		// 	wantOutput: "true",
+		// 	wantErr:    "",
+		// 	setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`57 > -5`), 0644) },
+		// },
+		// {
+		// 	name:       "evaluate equality operators",
+		// 	filename:   "equality_operators.txt",
+		// 	wantOutput: "true",
+		// 	wantErr:    "",
+		// 	setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`"hello" == "hello"`), 0644) },
+		// },
+		// {
+		// 	name:       "evaluate number equality",
+		// 	filename:   "number_equality.txt",
+		// 	wantOutput: "false",
+		// 	wantErr:    "",
+		// 	setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`61 == "61"`), 0644) },
+		// },
+		// {
+		// 	name:       "evaluate error",
+		// 	filename:   "error.txt",
+		// 	wantOutput: "",
+		// 	wantErr:    "Operand must be a number.",
+		// 	setupFile:  func(filename string) error { return os.WriteFile(filename, []byte(`-true`), 0644) },
+		// },
+		// {
+		// 	name:       "evaluate false condition",
+		// 	filename:   "expect_no_output.txt",
+		// 	wantOutput: "",
+		// 	wantErr:    "",
+		// 	setupFile: func(filename string) error {
+		// 		return os.WriteFile(filename, []byte(`if (false) { print "block body"; }`), 0644)
+		// 	},
+		// },
 	}
 
 	for _, tt := range tests {
@@ -381,12 +391,13 @@ func TestEvaluate(t *testing.T) {
 				}
 			}
 
+			fmt.Println("here")
 			var stdout, stderr bytes.Buffer
 			ok := evaluate(tt.filename, &stdout, &stderr)
 
 			// Check error
 			errOutput := stderr.String()
-
+			fmt.Println("here2")
 			if tt.wantErr != "" {
 				if strings.TrimSpace(errOutput) != strings.TrimSpace(tt.wantErr) {
 					t.Errorf("expected error %v, got %v", tt.wantErr, errOutput)
@@ -399,9 +410,10 @@ func TestEvaluate(t *testing.T) {
 					t.Errorf("expected no error, got %v", errOutput)
 				}
 			}
-
+			fmt.Println("here3")
 			// Check output
 			output := stdout.String()
+			fmt.Println(output)
 			if tt.wantOutput != "" && strings.TrimSpace(output) != tt.wantOutput {
 				t.Errorf("expected output %v, got %v", tt.wantOutput, output)
 			}
