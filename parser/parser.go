@@ -200,9 +200,23 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseIfStatement()
 	case token.FOR:
 		return p.parseForStatement()
+	case token.RETURN:
+		return p.parseReturnStatement()
 	default:
 		return p.parseExpressmentStatement()
 	}
+}
+
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	stmt := &ast.ReturnStatement{Token: p.curToken}
+
+	p.nextToken()
+	stmt.ReturnValue = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+	return stmt
 }
 
 func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
