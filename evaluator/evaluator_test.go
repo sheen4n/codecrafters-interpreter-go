@@ -735,3 +735,21 @@ print greaterThan10(9);
 
 	testStdout(t, stdout, "true\nfalse\n")
 }
+
+func TestFunctionWithTooManyArgs(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `fun f(a, b) { print a; print b; } f(1, 2, 3, 4);`, &stdout, &stderr)
+	testStderr(t, stderr, "Expected 2 arguments but got 4.")
+}
+
+func TestFunctionWithTooFewArgs(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `fun f(a, b) { print a; print b; } f(1);`, &stdout, &stderr)
+	testStderr(t, stderr, "Expected 2 arguments but got 1.")
+}
+
+func TestInvokeNonFunction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `print 1();`, &stdout, &stderr)
+	testStderr(t, stderr, "Can only call functions and classes.")
+}

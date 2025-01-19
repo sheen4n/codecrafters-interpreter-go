@@ -154,12 +154,30 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Environment) object.Object {
 			return function
 		}
 
-		args := e.evalExpressions(node.Arguments, env)
-		if len(args) == 1 && isError(args[0]) {
-			return args[0]
+		if function.Type() == object.FUNCTION_OBJ {
+			args := e.evalExpressions(node.Arguments, env)
+			if len(args) == 1 && isError(args[0]) {
+				return args[0]
+			}
+
+			if len(args) != len(function.(*object.Function).Parameters) {
+				return newError("Expected %d arguments but got %d.", len(function.(*object.Function).Parameters), len(args))
+			}
+
+			return e.applyFunction(function, args)
 		}
 
-		return e.applyFunction(function, args)
+		if function.Type() == object.NATIVE_FUNCTION_OBJ {
+			args := e.evalExpressions(node.Arguments, env)
+			if len(args) == 1 && isError(args[0]) {
+				return args[0]
+			}
+
+			return e.applyFunction(function, args)
+		}
+
+		return newError("Can only call functions and classes.")
+
 	case *ast.ReturnStatement:
 		value := e.Eval(node.ReturnValue, env)
 		if isError(value) {
