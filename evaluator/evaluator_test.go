@@ -753,3 +753,9 @@ func TestInvokeNonFunction(t *testing.T) {
 	testEval(t, `print 1();`, &stdout, &stderr)
 	testStderr(t, stderr, "Can only call functions and classes.")
 }
+
+func TestCombinedBooleanExpressions(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `print 1 == 1 and true;`, &stdout, &stderr)
+	testStdout(t, stdout, "true\n")
+}
