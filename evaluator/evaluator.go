@@ -232,6 +232,13 @@ func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) 
 		return result
 	}
 
+	// check if last statement is a call expression
+	if lastStmt, ok := stmts[len(stmts)-1].(*ast.ExpressionStatement); ok {
+		if _, ok := lastStmt.Expression.(*ast.CallExpression); ok {
+			return result
+		}
+	}
+
 	io.WriteString(e.stdout, result.Inspect())
 	io.WriteString(e.stdout, "\n")
 

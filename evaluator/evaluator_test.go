@@ -759,3 +759,9 @@ func TestCombinedBooleanExpressions(t *testing.T) {
 	testEval(t, `print 1 == 1 and true;`, &stdout, &stderr)
 	testStdout(t, stdout, "true\n")
 }
+
+func TestDoNotPrintReturnValue(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `fun f() { return 1; } f();`, &stdout, &stderr)
+	testStdout(t, stdout, "")
+}
