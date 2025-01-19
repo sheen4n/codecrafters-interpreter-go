@@ -714,3 +714,24 @@ func TestWhileStatementReturnValue(t *testing.T) {
 print f();`, &stdout, &stderr)
 	testStdout(t, stdout, "ok\n")
 }
+
+func TestReturnWithinBlock(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	testEval(t, `fun makeFilter(min) {
+  fun filter(n) {
+    if (n < min) {
+      return false;
+    }
+    return true;
+  }
+  return filter;
+}
+	
+var greaterThan10 = makeFilter(10);
+print greaterThan10(11);
+print greaterThan10(9);
+
+`, &stdout, &stderr)
+
+	testStdout(t, stdout, "true\nfalse\n")
+}

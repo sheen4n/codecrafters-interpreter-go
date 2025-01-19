@@ -202,6 +202,10 @@ func (e *Evaluator) evalProgram(stmts []ast.Statement, env *object.Environment) 
 		return nil
 	}
 
+	if result.Type() == object.RETURN_VALUE_OBJ {
+		return result.(*object.ReturnValue).Value
+	}
+
 	if result.Type() == object.ERROR_OBJ {
 		return result
 	}
@@ -226,7 +230,7 @@ func (e *Evaluator) evalBlockStatement(stmts []ast.Statement, env *object.Enviro
 		result = e.Eval(stmt, env)
 		switch result := result.(type) {
 		case *object.ReturnValue:
-			return result.Value
+			return result
 		case *object.Error:
 			io.WriteString(e.stderr, result.Message)
 			return result
